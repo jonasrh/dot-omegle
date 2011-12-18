@@ -74,7 +74,6 @@ namespace dotOmegle
         /// </summary>
         public void Start()
         {
-            Console.Title = "OmegleAPI Test";
             while (omegleMode)
             {
                 MainLoop();
@@ -174,15 +173,24 @@ namespace dotOmegle
                 Console.ForegroundColor = ConsoleColor.Gray;
                 MainLoop();
                 return;*/
-                this.StrangerDisconnected(this, new EventArgs());
+                if (this.StrangerDisconnected != null)
+                {
+                    this.StrangerDisconnected(this, new EventArgs());
+                }
             }
             else if (response.Contains("typing"))
             {
-                this.StrangerTyping(this, new EventArgs());
+                if (this.StrangerTyping != null)
+                {
+                    this.StrangerTyping(this, new EventArgs());
+                }
             }
             else if (response.Contains("waiting"))
             {
-                this.WaitingForPartner(this, new EventArgs());
+                if (this.WaitingForPartner != null)
+                {
+                    this.WaitingForPartner(this, new EventArgs());
+                }
             }
             if (response.Contains("gotMessage"))
             {
