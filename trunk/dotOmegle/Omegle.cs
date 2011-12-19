@@ -46,6 +46,7 @@ namespace dotOmegle
         /// Raised when the stranger is typing a message.
         /// </summary>
         public event EventHandler StrangerTyping;
+        public event EventHandler Connected;
 
         /// <summary>
         /// Raised when the application is still looking for a partner to connect to.
@@ -176,6 +177,13 @@ namespace dotOmegle
                 if (this.StrangerDisconnected != null)
                 {
                     this.StrangerDisconnected(this, new EventArgs());
+                }
+            }
+            else if (response.Contains("connected"))
+            {
+                if (this.Connected != null)
+                {
+                    this.Connected(this, new EventArgs());
                 }
             }
             else if (response.Contains("typing"))
