@@ -5,7 +5,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmegleAPITest", "OmegleAPIT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotOmegle", "dotOmegle\dotOmegle.csproj", "{F6404F19-593C-4AAC-8ABF-FD0FB6D975A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleverOmegle", "CleverOmegle\CleverOmegle.csproj", "{1DC2B5FE-A7DB-492D-A8D3-8299533B2FF6}"
+EndProject
 Global
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
@@ -19,6 +25,10 @@ Global
 		{F6404F19-593C-4AAC-8ABF-FD0FB6D975A4}.Debug|x86.Build.0 = Debug|x86
 		{F6404F19-593C-4AAC-8ABF-FD0FB6D975A4}.Release|x86.ActiveCfg = Release|x86
 		{F6404F19-593C-4AAC-8ABF-FD0FB6D975A4}.Release|x86.Build.0 = Release|x86
+		{1DC2B5FE-A7DB-492D-A8D3-8299533B2FF6}.Debug|x86.ActiveCfg = Debug|x86
+		{1DC2B5FE-A7DB-492D-A8D3-8299533B2FF6}.Debug|x86.Build.0 = Debug|x86
+		{1DC2B5FE-A7DB-492D-A8D3-8299533B2FF6}.Release|x86.ActiveCfg = Release|x86
+		{1DC2B5FE-A7DB-492D-A8D3-8299533B2FF6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
