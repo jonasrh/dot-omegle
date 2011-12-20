@@ -86,11 +86,12 @@ namespace dotOmegle
         /// </summary>
         public void MainLoop()
         {
-            GetID();
+            GetID(); //fetches a new ID
             while (continueRestarts)
             {
                 Listen();
-                System.Threading.Thread.Sleep(1);
+                System.Threading.Thread.Sleep(1); //Not 100% sure if I need this, but it seems to break if I don't have it.
+                //Ho ho ho, hackery hackery doo
             }
         }
 
@@ -101,13 +102,9 @@ namespace dotOmegle
         {
             PostSubmitter post = new PostSubmitter();
             post.Url = "http://bajor.omegle.com/start";
-            /*post.PostItems.Add("id", "hello");
-            post.PostItems.Add("rel_code", "1102");
-            post.PostItems.Add("FREE_TEXT", "c# jobs");
-            post.PostItems.Add("SEARCH", "");*/
             post.Type = PostSubmitter.PostTypeEnum.Post;
             ID = post.Post();
-            ID = ID.TrimStart('"');
+            ID = ID.TrimStart('"'); //gets rid of " at the start and end
             ID = ID.TrimEnd('"');
         }
 
@@ -118,7 +115,9 @@ namespace dotOmegle
         /// <returns>The stranger response</returns>
         public string SendMessage(string message)
         {
-            message = HttpUtility.UrlEncode(message);
+            //Send Message format: http://bajor.omegle.com/send?id=ID&msg=MSG
+
+            message = HttpUtility.UrlEncode(message); //URL encode it first
 
             PostSubmitter sendPost = new PostSubmitter();
             sendPost.Url = "http://bajor.omegle.com/send";
@@ -137,6 +136,9 @@ namespace dotOmegle
         /// <returns></returns>
         public string SendMessageAsID(string message, string ownID)
         {
+            //This method could potentially be used to send messages from another user.
+            //One would have to acquire said users ID first.
+            //TODO: Find a way to get a strangers ID
             message = HttpUtility.UrlEncode(message);
 
             PostSubmitter sendPost = new PostSubmitter();
@@ -156,24 +158,16 @@ namespace dotOmegle
             }
         }
 
-        /// <summary>
-        /// Listen for events. Do not call directly.
-        /// </summary>
-        public void Listen()
+        private void Listen()
         {
+            //Todo: Bloody hell get some proper parsing
             PostSubmitter eventlisten = new PostSubmitter();
             eventlisten.Url = "http://bajor.omegle.com/events";
             eventlisten.PostItems.Add("id", ID);
             eventlisten.Type = PostSubmitter.PostTypeEnum.Post;
             string response = eventlisten.Post();
-            //Console.WriteLine("response: " + response);
             if (response.Contains("strangerDisconnected"))
             {
-                /*Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Stranger disconnected. Restarting loop.");
-                Console.ForegroundColor = ConsoleColor.Gray;
-                MainLoop();
-                return;*/
                 if (this.StrangerDisconnected != null)
                 {
                     this.StrangerDisconnected(this, new EventArgs());
@@ -203,16 +197,10 @@ namespace dotOmegle
             if (response.Contains("gotMessage"))
             {
                 //Console.WriteLine(response);
-
+                //Todo: Especially here :/
                 response = response.TrimStart(new char[] { '[', '[', '"', 'g', 'o', 't', 'M', 'e', 's', 's', 'a', 'g', 'e', '"', ',', ' ', '"' });
                 response = response.TrimEnd(new char[] { '"', ']', ']' });
                 response = HttpUtility.UrlDecode(response);
-                /*
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write(response);
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.Write("\n");
-                GetResponse();*/
                 this.MessageReceived(this, new MessageReceivedArgs(response));
             }
         }
