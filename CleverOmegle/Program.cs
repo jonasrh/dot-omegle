@@ -69,15 +69,32 @@ namespace CleverOmegle
             omegle.StrangerDisconnected += new EventHandler(omegle_StrangerDisconnected);
             omegle.WaitingForPartner += new EventHandler(omegle_WaitingForPartner);
             omegle.Connected += new EventHandler(omegle_Connected);
+            omegle.UnhandledResponse += new UnhandledResponseEvent(omegle_UnhandledResponse);
+            omegle.WebException += new EventHandler(omegle_WebException);
             omegle.Start();
             omegle.omegleMode = true;
             omegle.continueRestarts = true;
+        }
+
+        private static void omegle_WebException(object sender, EventArgs e)
+        {
+            Console.WriteLine("Exception met. Press any key to restart.");
+            Console.ReadKey();
+            omegle.MainLoop();
+            return;
+        }
+
+        private static void omegle_UnhandledResponse(object sender, UnhandledResponseEventArgs e)
+        {
+            Console.WriteLine(e.response);
         }
 
         private static void omegle_Connected(object sender, EventArgs e)
         {
             Console.WriteLine("Connected.");
             Log("\r\nConnected");
+
+            omegle_MessageReceived(null, new MessageReceivedArgs(string.Empty));
         }
 
         private static void omegle_WaitingForPartner(object sender, EventArgs e)
@@ -106,11 +123,16 @@ namespace CleverOmegle
             DateTime temporaryNow = DateTime.Now;
             string time = string.Format("{0}:{1}:{2} ", temporaryNow.Hour, temporaryNow.Minute, temporaryNow.Second);
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Stranger: " + e.message);
-            Log(time + "Stranger: " + e.message);
+            if (e.message != string.Empty)
+            {
+                Console.WriteLine("Stranger: " + e.message);
+                Log(time + "Stranger: " + e.message);
+            }
             Console.ForegroundColor = ConsoleColor.DarkCyan;
-            string response = bot.Think(e.message);
-            omegle.SendMessage(response);
+            omegle.StartTyping();
+            string response = bot.Think(e.message).Replace("Cleverbot", "Jasmin"); //MWAHAHAHA
+            omegle.StopTyping();
+            omegle.SendMessageRaw(response); //Already URI encoded
             Console.WriteLine("Cleverbot: " + response);
             Log(time + "Cleverbot: " + response);
             Console.ForegroundColor = ConsoleColor.Gray;

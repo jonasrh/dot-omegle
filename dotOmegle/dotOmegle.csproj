@@ -38,6 +38,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>.\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -52,6 +55,7 @@
     <Compile Include="MessageReceivedEventArgs.cs" />
     <Compile Include="Omegle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnhandledResponseEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
