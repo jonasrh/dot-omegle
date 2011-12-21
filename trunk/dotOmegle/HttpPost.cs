@@ -32,6 +32,7 @@ namespace dotOmegle
         private string m_url = string.Empty;
         private NameValueCollection m_values = new NameValueCollection();
         private PostTypeEnum m_type = PostTypeEnum.Get;
+        public event EventHandler WebExceptionEvent;
 
         /// <summary>
         /// Default constructor.
@@ -174,13 +175,27 @@ namespace dotOmegle
                 request.Method = "GET";
             }
             string result = string.Empty;
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            //Thanks to supersnail11 for this block here (http://www.facepunch.com/threads/1144771?p=33818537&viewfull=1#post33818537)
+            while (result == string.Empty)
             {
-                using (Stream responseStream = response.GetResponseStream())
+                try
                 {
-                    using (StreamReader readStream = new StreamReader(responseStream, Encoding.UTF8))
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                     {
-                        result = readStream.ReadToEnd();
+                        using (Stream responseStream = response.GetResponseStream())
+                        {
+                            using (StreamReader readStream = new StreamReader(responseStream, Encoding.UTF8))
+                            {
+                                result = readStream.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+                catch (WebException e)
+                {
+                    if (this.WebExceptionEvent != null)
+                    {
+                        this.WebExceptionEvent(this, new EventArgs());
                     }
                 }
             }

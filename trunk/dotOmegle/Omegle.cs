@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace dotOmegle
 {
@@ -32,6 +34,10 @@ namespace dotOmegle
     /// </summary>
     public class Omegle
     {
+        private string[] servers = new string[]
+        {
+            "bajor","quarks" //finish servers implementation
+        };
         /// <summary>
         /// Raised when a message from a stranger is received.
         /// </summary>
@@ -47,7 +53,10 @@ namespace dotOmegle
         /// </summary>
         public event EventHandler StrangerTyping;
         public event EventHandler Connected;
-
+        public event EventHandler StrangerStoppedTyping;
+        public event EventHandler Count;
+        public event EventHandler WebException;
+        public event UnhandledResponseEvent UnhandledResponse;
         /// <summary>
         /// Raised when the application is still looking for a partner to connect to.
         /// </summary>
@@ -113,11 +122,21 @@ namespace dotOmegle
         /// </summary>
         /// <param name="message">The message to send</param>
         /// <returns>The stranger response</returns>
+        /// <summary>
+        /// Sends a message to the connected stranger.
+        /// </summary>
+        /// <param name="message">The message to send</param>
+        /// <returns>The stranger response</returns>
         public string SendMessage(string message)
         {
-            //Send Message format: http://bajor.omegle.com/send?id=ID&msg=MSG
-
             message = HttpUtility.UrlEncode(message); //URL encode it first
+
+            return SendMessageRaw(message);
+        }
+
+        public string SendMessageRaw(string message)
+        {
+            //Send Message format: [url]http://bajor.omegle.com/send?id=ID&msg=MSG[/url]
 
             PostSubmitter sendPost = new PostSubmitter();
             sendPost.Url = "http://bajor.omegle.com/send";
@@ -126,6 +145,26 @@ namespace dotOmegle
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
 
             return sendPost.Post();
+        }
+
+        public void StartTyping()
+        {
+            PostSubmitter sendPost = new PostSubmitter();
+            sendPost.Url = "http://bajor.omegle.com/typing";
+            sendPost.PostItems.Add("id", ID);
+            sendPost.Type = PostSubmitter.PostTypeEnum.Post;
+
+            sendPost.Post();
+        }
+
+        public void StopTyping()
+        {
+            PostSubmitter sendPost = new PostSubmitter();
+            sendPost.Url = "http://bajor.omegle.com/stoppedtyping";
+            sendPost.PostItems.Add("id", ID);
+            sendPost.Type = PostSubmitter.PostTypeEnum.Post;
+
+            sendPost.Post();
         }
 
         /// <summary>
@@ -158,51 +197,84 @@ namespace dotOmegle
             }
         }
 
+        protected virtual void UnhandledResponseEvent(UnhandledResponseEventArgs e)
+        {
+            if (this.UnhandledResponse != null)
+            {
+                this.UnhandledResponse(this, e);
+            }
+        }
+
+        //Huge thanks to voodooattack for this and lots more. Cannot stress enough how thankful I am.
+        //Here, have a cookie: ( # ) <- cookie
+        private void Parse(string response)
+        {
+            JArray events = JsonConvert.DeserializeObject<JArray>(response);
+
+            if (events != null)
+            {
+                foreach (JToken ev in events)
+                {
+                    string event_ = ev[0].ToString();
+                    switch (event_)
+                    {
+                        //we need to prefix and suffix each one with a literal " character
+                        case "\"connected\"":
+                            if (this.Connected != null)
+                                this.Connected(this, new EventArgs());
+                            break;
+                        case "\"strangerDisconnected\"":
+                            if (this.StrangerDisconnected != null)
+                                this.StrangerDisconnected(this, new EventArgs());
+                            break;
+                        case "\"gotMessage\"":
+                            if (this.MessageReceived != null)
+                                this.MessageReceived(this, new MessageReceivedArgs(ev[1].ToString().TrimStart('"').TrimEnd('"')));
+                            break;
+                        case "\"waiting\"":
+                            if (this.WaitingForPartner != null)
+                                this.WaitingForPartner(this, new EventArgs());
+                            break;
+                        case "\"typing\"":
+                            if (this.StrangerTyping != null)
+                                this.StrangerTyping(this, new EventArgs());
+                            break;
+                        case "\"stoppedTyping\"":
+                            if (this.StrangerStoppedTyping != null)
+                                this.StrangerStoppedTyping(this, new EventArgs());
+                            break;
+                        case "\"count\"":
+                            if (this.Count != null)
+                                this.Count(this, new EventArgs()); //I'm a cheapskate, ev[1] holds user count though.
+                            break;
+                        case "error": // should probably handle this one
+                        case "spyMessage":
+                        case "spyTyping":
+                        case "spyStoppedTyping":
+                        case "spyDisconnected":
+                        case "question":
+                        case "suggestSpyee":
+                        default:
+                            if (this.UnhandledResponse != null)
+                            {
+                                this.UnhandledResponse(this, new UnhandledResponseEventArgs(ev.ToString()));
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
         private void Listen()
         {
-            //Todo: Bloody hell get some proper parsing
             PostSubmitter eventlisten = new PostSubmitter();
             eventlisten.Url = "http://bajor.omegle.com/events";
             eventlisten.PostItems.Add("id", ID);
             eventlisten.Type = PostSubmitter.PostTypeEnum.Post;
+
             string response = eventlisten.Post();
-            if (response.Contains("strangerDisconnected"))
-            {
-                if (this.StrangerDisconnected != null)
-                {
-                    this.StrangerDisconnected(this, new EventArgs());
-                }
-            }
-            else if (response.Contains("connected"))
-            {
-                if (this.Connected != null)
-                {
-                    this.Connected(this, new EventArgs());
-                }
-            }
-            else if (response.Contains("typing"))
-            {
-                if (this.StrangerTyping != null)
-                {
-                    this.StrangerTyping(this, new EventArgs());
-                }
-            }
-            else if (response.Contains("waiting"))
-            {
-                if (this.WaitingForPartner != null)
-                {
-                    this.WaitingForPartner(this, new EventArgs());
-                }
-            }
-            if (response.Contains("gotMessage"))
-            {
-                //Console.WriteLine(response);
-                //Todo: Especially here :/
-                response = response.TrimStart(new char[] { '[', '[', '"', 'g', 'o', 't', 'M', 'e', 's', 's', 'a', 'g', 'e', '"', ',', ' ', '"' });
-                response = response.TrimEnd(new char[] { '"', ']', ']' });
-                response = HttpUtility.UrlDecode(response);
-                this.MessageReceived(this, new MessageReceivedArgs(response));
-            }
+
+            Parse(response);  ////DONE: Bloody hell get some proper parsing
         }
 
         /// <summary>
