@@ -57,6 +57,9 @@ namespace dotOmegle
         public event EventHandler Count;
         public event EventHandler WebException;
         public event UnhandledResponseEvent UnhandledResponse;
+        public event CaptchaRequiredEvent CaptchaRequired;
+        public event EventHandler CaptchaRefused;
+
         /// <summary>
         /// Raised when the application is still looking for a partner to connect to.
         /// </summary>
@@ -142,6 +145,18 @@ namespace dotOmegle
             sendPost.Url = "http://bajor.omegle.com/send";
             sendPost.PostItems.Add("id", ID);
             sendPost.PostItems.Add("msg", message);
+            sendPost.Type = PostSubmitter.PostTypeEnum.Post;
+
+            return sendPost.Post();
+        }
+
+        public string SendCaptcha(string challenge, string response)
+        {
+            PostSubmitter sendPost = new PostSubmitter();
+            sendPost.Url = "http://bajor.omegle.com/recaptcha";
+            sendPost.PostItems.Add("id", ID);
+            sendPost.PostItems.Add("challenge", challenge);
+            sendPost.PostItems.Add("response", response);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
 
             return sendPost.Post();
@@ -247,13 +262,21 @@ namespace dotOmegle
                             if (this.Count != null)
                                 this.Count(this, new EventArgs()); //I'm a cheapskate, ev[1] holds user count though.
                             break;
-                        case "error": // should probably handle this one
-                        case "spyMessage":
-                        case "spyTyping":
-                        case "spyStoppedTyping":
-                        case "spyDisconnected":
-                        case "question":
-                        case "suggestSpyee":
+                        case "\"recaptchaRequired\"":
+                            if (this.CaptchaRequired != null)
+                                this.CaptchaRequired(this, new CaptchaRequiredArgs(ev[1].ToString()));
+                            break;
+                        case "\"recaptchaRejected":
+                            if (this.CaptchaRefused != null)
+                                this.CaptchaRefused(this, new EventArgs());
+                            break;
+                        case "\"error\"": // should probably handle this one
+                        case "\"spyMessage\"":
+                        case "\"spyTyping\"":
+                        case "\"spyStoppedTyping\"":
+                        case "\"spyDisconnected\"":
+                        case "\"question\"":
+                        case "\"suggestSpyee\"":
                         default:
                             if (this.UnhandledResponse != null)
                             {
@@ -274,7 +297,7 @@ namespace dotOmegle
 
             string response = eventlisten.Post();
 
-            Parse(response);  ////DONE: Bloody hell get some proper parsing
+            Parse(response);
         }
 
         /// <summary>

@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CaptchaRequiredArgs.cs" />
     <Compile Include="HttpPost.cs" />
     <Compile Include="MessageReceivedEventArgs.cs" />
     <Compile Include="Omegle.cs" />

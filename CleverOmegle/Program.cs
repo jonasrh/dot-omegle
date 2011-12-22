@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text;
 using ChatterBotAPI;
 using dotOmegle;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CleverOmegle
 {
@@ -39,6 +41,9 @@ namespace CleverOmegle
         public static string year;
         public static string fileLocation;
         public static ChatterBotSession bot;
+        public static bool BotInitiates = false;
+        public static string captchaURL = null;
+        public static CaptchaWindow captcha = new CaptchaWindow();
 
         public static void Log(string text)
         {
@@ -52,6 +57,7 @@ namespace CleverOmegle
 
         public static void Main(string[] args)
         {
+            captcha.Hide();
             Console.Title = "CleverOmegle";
             if (!Directory.Exists(@"logs/"))
             {
@@ -71,6 +77,19 @@ namespace CleverOmegle
             omegle.Connected += new EventHandler(omegle_Connected);
             omegle.UnhandledResponse += new UnhandledResponseEvent(omegle_UnhandledResponse);
             omegle.WebException += new EventHandler(omegle_WebException);
+            omegle.CaptchaRequired += new CaptchaRequiredEvent(omegle_CaptchaRequired);
+            omegle.CaptchaRefused += new EventHandler(omegle_CaptchaRefused);
+            Console.WriteLine("Should the bot start conversations? (y/n)");
+            string answerBool = Console.ReadLine();
+            if (string.Equals(answerBool, "y", StringComparison.CurrentCultureIgnoreCase)) //y and Y will both yield true
+            {
+                BotInitiates = true;
+            }
+            else
+            {
+                BotInitiates = false;
+            }
+            Console.Clear();
             omegle.Start();
             omegle.omegleMode = true;
             omegle.continueRestarts = true;
@@ -84,6 +103,37 @@ namespace CleverOmegle
             return;
         }
 
+        private static void omegle_CaptchaRequired(object sender, CaptchaRequiredArgs e)
+        {
+            Console.WriteLine("Captcha Required. Press any key to launch browser.");
+            Console.ReadKey();
+
+            PostSubmitter post = new PostSubmitter();
+            post.Url = "http://www.google.com/recaptcha/api/challenge";
+            post.PostItems.Add("k", e.id);
+            post.PostItems.Add("ajax", "1");
+            post.Type = PostSubmitter.PostTypeEnum.Get;
+
+            string response = "{" + post.Post().Split(new char[] { '{', '}' })[1] + "}";
+            string challenge = JsonConvert.DeserializeObject<JObject>(response)["challenge"].ToString();
+            captchaURL = "http://www.google.com/recaptcha/api/image?c=" + challenge;
+            //System.Diagnostics.Process.Start("http://www.google.com/recaptcha/api/image?c=" + challenge);
+            captcha.Show();
+            Console.Write("Please Input Captcha: ");
+            string userInput = Console.ReadLine();
+
+            if (userInput != string.Empty)
+                omegle.SendCaptcha(challenge, userInput);
+            else
+                omegle.MainLoop();
+        }
+
+        public static void omegle_CaptchaRefused(object sender, EventArgs e)
+        {
+            Console.WriteLine("Captcha invalid.");
+            omegle.MainLoop();
+        }
+
         private static void omegle_UnhandledResponse(object sender, UnhandledResponseEventArgs e)
         {
             Console.WriteLine(e.response);
@@ -93,8 +143,8 @@ namespace CleverOmegle
         {
             Console.WriteLine("Connected.");
             Log("\r\nConnected");
-
-            omegle_MessageReceived(null, new MessageReceivedArgs(string.Empty));
+            if (BotInitiates)
+                omegle_MessageReceived(null, new MessageReceivedArgs(string.Empty));
         }
 
         private static void omegle_WaitingForPartner(object sender, EventArgs e)
