@@ -76,7 +76,7 @@ namespace CleverOmegle
             omegle.WaitingForPartner += new EventHandler(omegle_WaitingForPartner);
             omegle.Connected += new EventHandler(omegle_Connected);
             omegle.UnhandledResponse += new UnhandledResponseEvent(omegle_UnhandledResponse);
-            omegle.WebException += new EventHandler(omegle_WebException);
+            omegle.WebException += new WebExceptionEvent(omegle_WebException);
             omegle.CaptchaRequired += new CaptchaRequiredEvent(omegle_CaptchaRequired);
             omegle.CaptchaRefused += new EventHandler(omegle_CaptchaRefused);
             Console.WriteLine("Should the bot start conversations? (y/n)");
@@ -95,16 +95,20 @@ namespace CleverOmegle
             omegle.continueRestarts = true;
         }
 
-        private static void omegle_WebException(object sender, EventArgs e)
+        private static void omegle_WebException(object sender, WebExceptionEventArgs e)
         {
-            Console.WriteLine("Exception met. Press any key to restart.");
-            Console.ReadKey();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Exception met: {0}", e.exception.ToString());
+            Console.ResetColor();
+            Console.WriteLine("Restarting..");
+            //Console.ReadKey();
             omegle.MainLoop();
             return;
         }
 
         private static void omegle_CaptchaRequired(object sender, CaptchaRequiredArgs e)
         {
+            Console.ResetColor();
             Console.WriteLine("Captcha Required. Press any key to launch browser.");
             Console.ReadKey();
 
@@ -118,7 +122,7 @@ namespace CleverOmegle
             string challenge = JsonConvert.DeserializeObject<JObject>(response)["challenge"].ToString();
             captchaURL = "http://www.google.com/recaptcha/api/image?c=" + challenge;
             //System.Diagnostics.Process.Start("http://www.google.com/recaptcha/api/image?c=" + challenge);
-            captcha.Show();
+            captcha.ShowDialog();
             Console.Write("Please Input Captcha: ");
             string userInput = Console.ReadLine();
 

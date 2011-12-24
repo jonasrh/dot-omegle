@@ -32,7 +32,7 @@ namespace dotOmegle
         private string m_url = string.Empty;
         private NameValueCollection m_values = new NameValueCollection();
         private PostTypeEnum m_type = PostTypeEnum.Get;
-        public event EventHandler WebExceptionEvent;
+        public event WebExceptionEvent WebExceptionEvent;
 
         /// <summary>
         /// Default constructor.
@@ -195,7 +195,7 @@ namespace dotOmegle
                 {
                     if (this.WebExceptionEvent != null)
                     {
-                        this.WebExceptionEvent(this, new EventArgs());
+                        this.WebExceptionEvent(this, new WebExceptionEventArgs(e));
                     }
                 }
             }
