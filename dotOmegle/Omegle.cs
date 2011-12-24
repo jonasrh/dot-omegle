@@ -55,7 +55,7 @@ namespace dotOmegle
         public event EventHandler Connected;
         public event EventHandler StrangerStoppedTyping;
         public event EventHandler Count;
-        public event EventHandler WebException;
+        public event WebExceptionEvent WebException;
         public event UnhandledResponseEvent UnhandledResponse;
         public event CaptchaRequiredEvent CaptchaRequired;
         public event EventHandler CaptchaRefused;
@@ -115,6 +115,7 @@ namespace dotOmegle
             PostSubmitter post = new PostSubmitter();
             post.Url = "http://bajor.omegle.com/start";
             post.Type = PostSubmitter.PostTypeEnum.Post;
+            post.WebExceptionEvent += WebException;
             ID = post.Post();
             ID = ID.TrimStart('"'); //gets rid of " at the start and end
             ID = ID.TrimEnd('"');
@@ -146,7 +147,7 @@ namespace dotOmegle
             sendPost.PostItems.Add("id", ID);
             sendPost.PostItems.Add("msg", message);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-
+            sendPost.WebExceptionEvent += WebException;
             return sendPost.Post();
         }
 
@@ -158,7 +159,7 @@ namespace dotOmegle
             sendPost.PostItems.Add("challenge", challenge);
             sendPost.PostItems.Add("response", response);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-
+            sendPost.WebExceptionEvent += WebException;
             return sendPost.Post();
         }
 
@@ -168,7 +169,7 @@ namespace dotOmegle
             sendPost.Url = "http://bajor.omegle.com/typing";
             sendPost.PostItems.Add("id", ID);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-
+            sendPost.WebExceptionEvent += WebException;
             sendPost.Post();
         }
 
@@ -178,7 +179,7 @@ namespace dotOmegle
             sendPost.Url = "http://bajor.omegle.com/stoppedtyping";
             sendPost.PostItems.Add("id", ID);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-
+            sendPost.WebExceptionEvent += WebException;
             sendPost.Post();
         }
 
@@ -200,7 +201,7 @@ namespace dotOmegle
             sendPost.PostItems.Add("id", ownID);
             sendPost.PostItems.Add("msg", message);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-
+            sendPost.WebExceptionEvent += WebException;
             return sendPost.Post();
         }
 
@@ -234,49 +235,52 @@ namespace dotOmegle
                     switch (event_)
                     {
                         //we need to prefix and suffix each one with a literal " character
-                        case "\"connected\"":
+                        case "connected":
                             if (this.Connected != null)
                                 this.Connected(this, new EventArgs());
                             break;
-                        case "\"strangerDisconnected\"":
+                        case "strangerDisconnected":
                             if (this.StrangerDisconnected != null)
                                 this.StrangerDisconnected(this, new EventArgs());
                             break;
-                        case "\"gotMessage\"":
+                        case "gotMessage":
                             if (this.MessageReceived != null)
+                            {
                                 this.MessageReceived(this, new MessageReceivedArgs(ev[1].ToString().TrimStart('"').TrimEnd('"')));
+                            }
                             break;
-                        case "\"waiting\"":
+                        case "waiting":
                             if (this.WaitingForPartner != null)
                                 this.WaitingForPartner(this, new EventArgs());
                             break;
-                        case "\"typing\"":
+                        case "typing":
                             if (this.StrangerTyping != null)
                                 this.StrangerTyping(this, new EventArgs());
                             break;
-                        case "\"stoppedTyping\"":
+                        case "stoppedTyping":
                             if (this.StrangerStoppedTyping != null)
                                 this.StrangerStoppedTyping(this, new EventArgs());
                             break;
-                        case "\"count\"":
+                        case "count":
                             if (this.Count != null)
                                 this.Count(this, new EventArgs()); //I'm a cheapskate, ev[1] holds user count though.
                             break;
-                        case "\"recaptchaRequired\"":
+                        case "recaptchaRequired":
                             if (this.CaptchaRequired != null)
                                 this.CaptchaRequired(this, new CaptchaRequiredArgs(ev[1].ToString()));
                             break;
-                        case "\"recaptchaRejected":
+                        case "recaptchaRejected":
                             if (this.CaptchaRefused != null)
                                 this.CaptchaRefused(this, new EventArgs());
                             break;
-                        case "\"error\"": // should probably handle this one
-                        case "\"spyMessage\"":
-                        case "\"spyTyping\"":
-                        case "\"spyStoppedTyping\"":
-                        case "\"spyDisconnected\"":
-                        case "\"question\"":
-                        case "\"suggestSpyee\"":
+                        case "suggestSpyee":
+                            break;
+                        case "error": // should probably handle this one
+                        case "spyMessage":
+                        case "spyTyping":
+                        case "spyStoppedTyping":
+                        case "spyDisconnected":
+                        case "question":                        
                         default:
                             if (this.UnhandledResponse != null)
                             {
@@ -294,7 +298,7 @@ namespace dotOmegle
             eventlisten.Url = "http://bajor.omegle.com/events";
             eventlisten.PostItems.Add("id", ID);
             eventlisten.Type = PostSubmitter.PostTypeEnum.Post;
-
+            eventlisten.WebExceptionEvent += WebException;
             string response = eventlisten.Post();
 
             Parse(response);
