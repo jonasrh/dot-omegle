@@ -41,7 +41,8 @@ namespace OmegleAPITest
             omegle.continueRestarts = true;
             omegle.omegleMode = true;
             Console.WriteLine("Connecting...");
-            omegle.Start();
+            omegle.Connect();
+
         }
 
         private static void omegle_WaitingForPartner(object sender, EventArgs e)
@@ -57,7 +58,6 @@ namespace OmegleAPITest
         private static void omegle_StrangerDisconnected(object sender, EventArgs e)
         {
             Console.WriteLine("Stranger is disconnected. Restarting main loop.");
-            omegle.MainLoop();
             return;
             /*Console.WriteLine("Stranger is disconnected. Closing connection.");
              *omegle.Close();

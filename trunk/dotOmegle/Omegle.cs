@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -34,10 +35,13 @@ namespace dotOmegle
     /// </summary>
     public class Omegle
     {
-        private string[] servers = new string[]
+        protected string[] servers = new string[]
         {
             "bajor","quarks" //finish servers implementation
         };
+        
+        protected Timer updateTimer;
+
         /// <summary>
         /// Raised when a message from a stranger is received.
         /// </summary>
@@ -68,55 +72,104 @@ namespace dotOmegle
         /// <summary>
         /// The applications stranger ID.
         /// </summary>
-        public string ID = null;
+        public string ID { get; protected set; }
 
         /// <summary>
-        /// As long as omegleMode is true, the application shall continue checking for events and reconnecting.
-        /// Do not call it directly, call Close() instead.
+        /// How long (in milliseconds) should we wait between updates?
         /// </summary>
-        public bool omegleMode = true;
+        public int checkInterval { get; set; }
 
-        /// <summary>
-        /// As long as continueRestarts is enabled, the application will continue reconnecting if disconnected.
-        /// </summary>
-        public bool continueRestarts = true;
-        public string response = null;
+        public enum Status
+        {
+            Stopped,
+            Started
+        }
+
+        public string server { get; protected set; }
+
+        public Status status { get; protected set; }
+        public bool IsConnected { get; protected set; }
+
+        public Omegle()
+        {
+            ID = null;
+            checkInterval = 1000;
+            updateTimer = new Timer(TimerCallBack);
+            status = Status.Stopped;
+            IsConnected = false;
+            server = servers[1];
+        }
+
+        protected void TimerCallBack(object info)
+        {
+            updateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            Listen();
+
+            if (status == Status.Started)
+                updateTimer.Change(checkInterval, checkInterval);
+        }
 
         /// <summary>
         /// Connects to the Omegle network.
         /// </summary>
-        public void Start()
+        public void Connect()
         {
-            while (omegleMode)
-            {
-                MainLoop();
-            }
+            GetID();
+            Start();
+            IsConnected = true;
         }
 
-        /// <summary>
-        /// Connects to the Omegle network. Do not call directly, rather Start()
-        /// </summary>
-        public void MainLoop()
+        public void Start()
         {
-            GetID(); //fetches a new ID
-            while (continueRestarts)
-            {
-                Listen();
-                System.Threading.Thread.Sleep(1); //Not 100% sure if I need this, but it seems to break if I don't have it.
-                //Ho ho ho, hackery hackery doo
-            }
+            status = Status.Started;
+            updateTimer.Change(0, Timeout.Infinite);
         }
+
+        public void Stop()
+        {
+            status = Status.Stopped;
+            updateTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        public void Disconnect()
+        {
+            Stop();
+            SendDisconnect();
+            ID = null;
+            IsConnected = false;
+        }
+
+        public void Reconnect()
+        {
+            Disconnect();
+            Connect();
+        }
+
+        ///// <summary>
+        ///// Connects to the Omegle network. Do not call directly, rather Connect()
+        ///// </summary>
+        //public void MainLoop()
+        //{
+        //    GetID(); //fetches a new ID
+        //    while (continueRestarts)
+        //    {
+        //        Listen();
+        //        System.Threading.Thread.Sleep(1); //Not 100% sure if I need this, but it seems to break if I don't have it.
+        //        //Ho ho ho, hackery hackery doo
+        //    }
+        //}
 
         /// <summary>
         /// Gets a stranger ID from the Omegle service.
         /// </summary>
         public void GetID()
         {
-            PostSubmitter post = new PostSubmitter();
-            post.Url = "http://bajor.omegle.com/start";
-            post.Type = PostSubmitter.PostTypeEnum.Post;
-            post.WebExceptionEvent += WebException;
-            ID = post.Post();
+            PostSubmitter sendPost = new PostSubmitter();
+            sendPost.Url = String.Format("http://{0}.omegle.com/start", server);
+            sendPost.PostItems.Add("rcs", "1");
+            sendPost.Type = PostSubmitter.PostTypeEnum.Post;
+            //sendPost.WebExceptionEvent += WebException;
+            ID = sendPost.Post();
             ID = ID.TrimStart('"'); //gets rid of " at the start and end
             ID = ID.TrimEnd('"');
         }
@@ -129,7 +182,7 @@ namespace dotOmegle
         /// <summary>
         /// Sends a message to the connected stranger.
         /// </summary>
-        /// <param name="message">The message to send</param>
+        /// <param name="message">The message to be sent</param>
         /// <returns>The stranger response</returns>
         public string SendMessage(string message)
         {
@@ -138,12 +191,17 @@ namespace dotOmegle
             return SendMessageRaw(message);
         }
 
+        /// <summary>
+        /// Sends a message to the connected stranger. This version does not html-encode the message.
+        /// </summary>
+        /// <param name="message">The message to be sent</param>
+        /// <returns></returns>
         public string SendMessageRaw(string message)
         {
             //Send Message format: [url]http://bajor.omegle.com/send?id=ID&msg=MSG[/url]
 
             PostSubmitter sendPost = new PostSubmitter();
-            sendPost.Url = "http://bajor.omegle.com/send";
+            sendPost.Url = String.Format("http://{0}.omegle.com/send", server);
             sendPost.PostItems.Add("id", ID);
             sendPost.PostItems.Add("msg", message);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
@@ -151,35 +209,49 @@ namespace dotOmegle
             return sendPost.Post();
         }
 
+        /// <summary>
+        /// Sends a captcha response to the server.
+        /// </summary>
+        /// <param name="challenge">The challenge value</param>
+        /// <param name="response">The response string</param>
+        /// <returns></returns>
         public string SendCaptcha(string challenge, string response)
         {
             PostSubmitter sendPost = new PostSubmitter();
-            sendPost.Url = "http://bajor.omegle.com/recaptcha";
+            sendPost.Url = String.Format("http://{0}.omegle.com/recaptcha", server);
             sendPost.PostItems.Add("id", ID);
             sendPost.PostItems.Add("challenge", challenge);
             sendPost.PostItems.Add("response", response);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-            sendPost.WebExceptionEvent += WebException;
+            //sendPost.WebExceptionEvent += WebException;
             return sendPost.Post();
         }
 
+        /// <summary>
+        /// Notifies the server that the user has started typing.
+        /// </summary>
+        /// <returns></returns>
         public void StartTyping()
         {
             PostSubmitter sendPost = new PostSubmitter();
-            sendPost.Url = "http://bajor.omegle.com/typing";
+            sendPost.Url = String.Format("http://{0}.omegle.com/typing", server);
             sendPost.PostItems.Add("id", ID);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-            sendPost.WebExceptionEvent += WebException;
+            //sendPost.WebExceptionEvent += WebException;
             sendPost.Post();
         }
 
+        /// <summary>
+        /// Notifies the server that the user has finished typing.
+        /// </summary>
+        /// <returns></returns>
         public void StopTyping()
         {
             PostSubmitter sendPost = new PostSubmitter();
-            sendPost.Url = "http://bajor.omegle.com/stoppedtyping";
+            sendPost.Url = String.Format("http://{0}.omegle.com/stoppedtyping", server);
             sendPost.PostItems.Add("id", ID);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-            sendPost.WebExceptionEvent += WebException;
+            //sendPost.WebExceptionEvent += WebException;
             sendPost.Post();
         }
 
@@ -197,32 +269,29 @@ namespace dotOmegle
             message = HttpUtility.UrlEncode(message);
 
             PostSubmitter sendPost = new PostSubmitter();
-            sendPost.Url = "http://bajor.omegle.com/send";
+            sendPost.Url = String.Format("http://{0}.omegle.com/send", server);
             sendPost.PostItems.Add("id", ownID);
             sendPost.PostItems.Add("msg", message);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
-            sendPost.WebExceptionEvent += WebException;
+            //sendPost.WebExceptionEvent += WebException;
             return sendPost.Post();
         }
 
-        protected virtual void OnMessageReceived(MessageReceivedArgs e)
+        public string SendDisconnect()
         {
-            if (this.MessageReceived != null)
-            {
-                this.MessageReceived(this, e);
-            }
+            PostSubmitter sendPost = new PostSubmitter();
+            sendPost.Url = String.Format("http://{0}.omegle.com/disconnect", server);
+            sendPost.PostItems.Add("id", ID);
+            sendPost.Type = PostSubmitter.PostTypeEnum.Post;
+            //sendPost.WebExceptionEvent += WebException;
+            return sendPost.Post();
         }
 
-        protected virtual void UnhandledResponseEvent(UnhandledResponseEventArgs e)
-        {
-            if (this.UnhandledResponse != null)
-            {
-                this.UnhandledResponse(this, e);
-            }
-        }
-
-        //Huge thanks to voodooattack for this and lots more. Cannot stress enough how thankful I am.
-        //Here, have a cookie: ( # ) <- cookie
+        /// <summary>
+        /// Internal event parsing.
+        /// </summary>
+        /// <param name="response"></param>
+        /// <returns></returns>
         private void Parse(string response)
         {
             JArray events = JsonConvert.DeserializeObject<JArray>(response);
@@ -236,13 +305,19 @@ namespace dotOmegle
                     {
                         //we need to prefix and suffix each one with a literal " character
                         case "connected":
+                            IsConnected = true;
                             if (this.Connected != null)
                                 this.Connected(this, new EventArgs());
                             break;
                         case "strangerDisconnected":
-                            if (this.StrangerDisconnected != null)
-                                this.StrangerDisconnected(this, new EventArgs());
-                            break;
+                            {
+                                Disconnect();
+
+                                if (this.StrangerDisconnected != null)
+                                    this.StrangerDisconnected(this, new EventArgs());
+
+                                break;
+                            }
                         case "gotMessage":
                             if (this.MessageReceived != null)
                             {
@@ -292,10 +367,14 @@ namespace dotOmegle
             }
         }
 
+        /// <summary>
+        /// Checks the server for a new response.
+        /// </summary>
+        /// <returns></returns>
         private void Listen()
         {
             PostSubmitter eventlisten = new PostSubmitter();
-            eventlisten.Url = "http://bajor.omegle.com/events";
+            eventlisten.Url = String.Format("http://{0}.omegle.com/events", server);
             eventlisten.PostItems.Add("id", ID);
             eventlisten.Type = PostSubmitter.PostTypeEnum.Post;
             eventlisten.WebExceptionEvent += WebException;
@@ -304,13 +383,5 @@ namespace dotOmegle
             Parse(response);
         }
 
-        /// <summary>
-        /// Disconnect from the Omegle network.
-        /// </summary>
-        public void Close()
-        {
-            continueRestarts = false;
-            omegleMode = false;
-        }
     }
 }
