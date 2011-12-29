@@ -90,9 +90,7 @@ namespace CleverOmegle
                 BotInitiates = false;
             }
             Console.Clear();
-            omegle.Start();
-            omegle.omegleMode = true;
-            omegle.continueRestarts = true;
+            omegle.Connect();
         }
 
         private static void omegle_WebException(object sender, WebExceptionEventArgs e)
@@ -102,7 +100,6 @@ namespace CleverOmegle
             Console.ResetColor();
             Console.WriteLine("Restarting..");
             //Console.ReadKey();
-            omegle.MainLoop();
             return;
         }
 
@@ -121,7 +118,7 @@ namespace CleverOmegle
             string response = "{" + post.Post().Split(new char[] { '{', '}' })[1] + "}";
             string challenge = JsonConvert.DeserializeObject<JObject>(response)["challenge"].ToString();
             captchaURL = "http://www.google.com/recaptcha/api/image?c=" + challenge;
-            //System.Diagnostics.Process.Start("http://www.google.com/recaptcha/api/image?c=" + challenge);
+            //System.Diagnostics.Process.Connect("http://www.google.com/recaptcha/api/image?c=" + challenge);
             captcha.ShowDialog();
             Console.Write("Please Input Captcha: ");
             string userInput = Console.ReadLine();
@@ -129,13 +126,13 @@ namespace CleverOmegle
             if (userInput != string.Empty)
                 omegle.SendCaptcha(challenge, userInput);
             else
-                omegle.MainLoop();
+                omegle.Reconnect();
         }
 
         public static void omegle_CaptchaRefused(object sender, EventArgs e)
         {
             Console.WriteLine("Captcha invalid.");
-            omegle.MainLoop();
+            omegle.Reconnect();
         }
 
         private static void omegle_UnhandledResponse(object sender, UnhandledResponseEventArgs e)
@@ -163,7 +160,6 @@ namespace CleverOmegle
             Console.WriteLine("Stranger is disconnected. Restarting main loop.");
             Log("Stranger is disconnected. Restarting main loop.");
             Console.ForegroundColor = ConsoleColor.Gray;
-            omegle.MainLoop();
             return;
         }
 

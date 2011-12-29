@@ -176,7 +176,7 @@ namespace dotOmegle
             }
             string result = string.Empty;
             //Thanks to supersnail11 for this block here (http://www.facepunch.com/threads/1144771?p=33818537&viewfull=1#post33818537)
-            while (result == string.Empty)
+            //while (result == string.Empty)
             {
                 try
                 {
@@ -195,7 +195,7 @@ namespace dotOmegle
                 {
                     if (this.WebExceptionEvent != null)
                     {
-                        this.WebExceptionEvent(this, new WebExceptionEventArgs(e));
+                        this.WebExceptionEvent(this, new WebExceptionEventArgs(e, url, postData, m_type));
                     }
                 }
             }

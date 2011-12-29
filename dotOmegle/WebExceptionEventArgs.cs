@@ -9,10 +9,16 @@ namespace dotOmegle
     public class WebExceptionEventArgs : EventArgs
     {
         public WebException exception;
+        public string url, postData;
+        public PostSubmitter.PostTypeEnum method;
 
-        public WebExceptionEventArgs(WebException e)
+        public WebExceptionEventArgs(WebException e, string url, string postData, 
+            PostSubmitter.PostTypeEnum method)
         {
             this.exception = e;
+            this.url = url;
+            this.postData = postData;
+            this.method = method;
         }
     }
 
