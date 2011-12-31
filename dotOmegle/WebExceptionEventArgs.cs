@@ -6,19 +6,23 @@ using System.Net;
 
 namespace dotOmegle
 {
+    /// <summary>
+    /// Holds arguments for the WebExceptionEvent event.
+    /// </summary>
     public class WebExceptionEventArgs : EventArgs
     {
-        public WebException exception;
-        public string url, postData;
-        public PostSubmitter.PostTypeEnum method;
+        public PostSubmitter.PostTypeEnum Method { get; protected set; }
+        public WebException Exception { get; protected set; }
+        public string PostData { get; protected set; }
+        public string Url { get; protected set;}        
 
         public WebExceptionEventArgs(WebException e, string url, string postData, 
             PostSubmitter.PostTypeEnum method)
         {
-            this.exception = e;
-            this.url = url;
-            this.postData = postData;
-            this.method = method;
+            this.Exception = e;
+            this.Url = url;
+            this.PostData = postData;
+            this.Method = method;
         }
     }
 

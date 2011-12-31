@@ -96,7 +96,7 @@ namespace CleverOmegle
         private static void omegle_WebException(object sender, WebExceptionEventArgs e)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Exception met: {0}", e.exception.ToString());
+            Console.WriteLine("Exception met: {0}", e.Exception.ToString());
             Console.ResetColor();
             Console.WriteLine("Restarting..");
             //Console.ReadKey();

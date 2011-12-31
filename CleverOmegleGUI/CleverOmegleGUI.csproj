@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>CleverOmegle.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ChatterBotAPI">
       <HintPath>..\ChatterBotAPI.dll</HintPath>
@@ -54,12 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CaptchaForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="CaptchaForm.Designer.cs">
-      <DependentUpon>CaptchaForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="FlashWindow.cs" />
     <Compile Include="HtmlInterfaces.cs" />
     <Compile Include="Main.cs">
@@ -68,13 +65,29 @@
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
+    <Compile Include="PandoraBotAddCustom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PandoraBotAddCustom.Designer.cs">
+      <DependentUpon>PandoraBotAddCustom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PandoraBotSelectionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PandoraBotSelectionForm.Designer.cs">
+      <DependentUpon>PandoraBotSelectionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="CaptchaForm.resx">
-      <DependentUpon>CaptchaForm.cs</DependentUpon>
-    </EmbeddedResource>
+    <Compile Include="Util.cs" />
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PandoraBotAddCustom.resx">
+      <DependentUpon>PandoraBotAddCustom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PandoraBotSelectionForm.resx">
+      <DependentUpon>PandoraBotSelectionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -102,6 +115,9 @@
       <Project>{F6404F19-593C-4AAC-8ABF-FD0FB6D975A4}</Project>
       <Name>dotOmegle</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="CleverOmegle.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
