@@ -20,18 +20,15 @@ namespace dotOmegle
         public enum PostTypeEnum
         {
             /// <summary>
-            /// Does a get against the source.
+            /// Does a GET against the source.
             /// </summary>
             Get,
             /// <summary>
-            /// Does a post against the source.
+            /// Does a POST against the source.
             /// </summary>
             Post
         }
 
-        private string m_url = string.Empty;
-        private NameValueCollection m_values = new NameValueCollection();
-        private PostTypeEnum m_type = PostTypeEnum.Get;
         public event WebExceptionEvent WebExceptionEvent;
 
         /// <summary>
@@ -39,6 +36,8 @@ namespace dotOmegle
         /// </summary>
         public PostSubmitter()
         {
+            PostItems = new NameValueCollection();
+            Type = PostTypeEnum.Get;
         }
 
         /// <summary>
@@ -48,7 +47,7 @@ namespace dotOmegle
         public PostSubmitter(string url)
             : this()
         {
-            m_url = url;
+            Url = url;
         }
 
         /// <summary>
@@ -59,53 +58,23 @@ namespace dotOmegle
         public PostSubmitter(string url, NameValueCollection values)
             : this(url)
         {
-            m_values = values;
+            PostItems = values;
         }
 
         /// <summary>
         /// Gets or sets the url to submit the post to.
         /// </summary>
-        public string Url
-        {
-            get
-            {
-                return m_url;
-            }
-            set
-            {
-                m_url = value;
-            }
-        }
+        public string Url { get; set; }
 
         /// <summary>
         /// Gets or sets the name value collection of items to post.
         /// </summary>
-        public NameValueCollection PostItems
-        {
-            get
-            {
-                return m_values;
-            }
-            set
-            {
-                m_values = value;
-            }
-        }
+        public NameValueCollection PostItems { get; set; }
 
         /// <summary>
         /// Gets or sets the type of action to perform against the url.
         /// </summary>
-        public PostTypeEnum Type
-        {
-            get
-            {
-                return m_type;
-            }
-            set
-            {
-                m_type = value;
-            }
-        }
+        public PostTypeEnum Type { get; set; }
 
         /// <summary>
         /// Posts the supplied data to specified url.
@@ -114,11 +83,11 @@ namespace dotOmegle
         public string Post()
         {
             StringBuilder parameters = new StringBuilder();
-            for (int i = 0; i < m_values.Count; i++)
+            for (int i = 0; i < PostItems.Count; i++)
             {
-                EncodeAndAddItem(ref parameters, m_values.GetKey(i), m_values[i]);
+                EncodeAndAddItem(ref parameters, PostItems.GetKey(i), PostItems[i]);
             }
-            string result = PostData(m_url, parameters.ToString());
+            string result = PostData(Url, parameters.ToString());
             return result;
         }
 
@@ -129,7 +98,7 @@ namespace dotOmegle
         /// <returns>a string containing the result of the post.</returns>
         public string Post(string url)
         {
-            m_url = url;
+            Url = url;
             return this.Post();
         }
 
@@ -141,7 +110,7 @@ namespace dotOmegle
         /// <returns>a string containing the result of the post.</returns>
         public string Post(string url, NameValueCollection values)
         {
-            m_values = values;
+            PostItems = values;
             return this.Post(url);
         }
 
@@ -151,10 +120,10 @@ namespace dotOmegle
         /// <param name="postData">The data to post.</param>
         /// <param name="url">the url to post to.</param>
         /// <returns>Returns the result of the post.</returns>
-        private string PostData(string url, string postData)
+        private string PostData(string url, string postData, int retries = 4)
         {
             HttpWebRequest request = null;
-            if (m_type == PostTypeEnum.Post)
+            if (Type == PostTypeEnum.Post)
             {
                 Uri uri = new Uri(url);
                 request = (HttpWebRequest)WebRequest.Create(uri);
@@ -174,36 +143,31 @@ namespace dotOmegle
                 request = (HttpWebRequest)WebRequest.Create(uri);
                 request.Method = "GET";
             }
+
             string result = string.Empty;
+
             //Thanks to supersnail11 for this block here (http://www.facepunch.com/threads/1144771?p=33818537&viewfull=1#post33818537)
-            //while (result == string.Empty)
+            
+            while (result == string.Empty && retries-- > 0) try
             {
-                try
-                {
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                    {
-                        using (Stream responseStream = response.GetResponseStream())
-                        {
-                            using (StreamReader readStream = new StreamReader(responseStream, Encoding.UTF8))
-                            {
-                                result = readStream.ReadToEnd();
-                            }
-                        }
-                    }
-                }
-                catch (WebException e)
-                {
-                    if (this.WebExceptionEvent != null)
-                    {
-                        this.WebExceptionEvent(this, new WebExceptionEventArgs(e, url, postData, m_type));
-                    }
-                }
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                    using (Stream responseStream = response.GetResponseStream())
+                        using (StreamReader readStream = new StreamReader(responseStream, Encoding.UTF8))
+                            result = readStream.ReadToEnd();
             }
+            catch (WebException e)
+            {
+                if (this.WebExceptionEvent != null)
+                    this.WebExceptionEvent(this, new WebExceptionEventArgs(e, url, postData, Type));
+                else 
+                    throw (e);
+            }
+
             return result;
         }
 
         /// <summary>
-        /// Encodes an item and ads it to the string.
+        /// Encodes an item and adds an item to the string.
         /// </summary>
         /// <param name="baseRequest">The previously encoded data.</param>
         /// <param name="dataItem">The data to encode.</param>
@@ -211,13 +175,11 @@ namespace dotOmegle
         private void EncodeAndAddItem(ref StringBuilder baseRequest, string key, string dataItem)
         {
             if (baseRequest == null)
-            {
                 baseRequest = new StringBuilder();
-            }
+            
             if (baseRequest.Length != 0)
-            {
                 baseRequest.Append("&");
-            }
+
             baseRequest.Append(key);
             baseRequest.Append("=");
             baseRequest.Append(HttpUtility.UrlEncode(dataItem));
