@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Popular Bots", System.Windows.Forms.HorizontalAlignment.Center);
-            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Your Bots", System.Windows.Forms.HorizontalAlignment.Center);
+            System.Windows.Forms.ListViewGroup listViewGroup3 = new System.Windows.Forms.ListViewGroup("Popular Bots", System.Windows.Forms.HorizontalAlignment.Center);
+            System.Windows.Forms.ListViewGroup listViewGroup4 = new System.Windows.Forms.ListViewGroup("Your Bots", System.Windows.Forms.HorizontalAlignment.Center);
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PandoraBotSelectionForm));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.botList = new System.Windows.Forms.ListView();
@@ -38,11 +38,11 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnOk = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
-            this.btnRefresh = new System.Windows.Forms.Button();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.toolStripStatusImage = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btnRefresh = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.toolStripContainer.BottomToolStripPanel.SuspendLayout();
@@ -70,7 +70,7 @@
             this.tableLayoutPanel.RowCount = 2;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(400, 281);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(400, 256);
             this.tableLayoutPanel.TabIndex = 1;
             // 
             // botList
@@ -81,19 +81,19 @@
             this.tableLayoutPanel.SetColumnSpan(this.botList, 5);
             this.botList.Dock = System.Windows.Forms.DockStyle.Fill;
             this.botList.FullRowSelect = true;
-            listViewGroup1.Header = "Popular Bots";
-            listViewGroup1.HeaderAlignment = System.Windows.Forms.HorizontalAlignment.Center;
-            listViewGroup1.Name = "popular";
-            listViewGroup2.Header = "Your Bots";
-            listViewGroup2.HeaderAlignment = System.Windows.Forms.HorizontalAlignment.Center;
-            listViewGroup2.Name = "custom";
+            listViewGroup3.Header = "Popular Bots";
+            listViewGroup3.HeaderAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+            listViewGroup3.Name = "popular";
+            listViewGroup4.Header = "Your Bots";
+            listViewGroup4.HeaderAlignment = System.Windows.Forms.HorizontalAlignment.Center;
+            listViewGroup4.Name = "custom";
             this.botList.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1,
-            listViewGroup2});
+            listViewGroup3,
+            listViewGroup4});
             this.botList.Location = new System.Drawing.Point(8, 8);
             this.botList.MultiSelect = false;
             this.botList.Name = "botList";
-            this.botList.Size = new System.Drawing.Size(384, 225);
+            this.botList.Size = new System.Drawing.Size(384, 200);
             this.botList.Sorting = System.Windows.Forms.SortOrder.Descending;
             this.botList.TabIndex = 1;
             this.botList.UseCompatibleStateImageBehavior = false;
@@ -115,7 +115,7 @@
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btnCancel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnCancel.Location = new System.Drawing.Point(308, 239);
+            this.btnCancel.Location = new System.Drawing.Point(308, 214);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(84, 34);
             this.btnCancel.TabIndex = 5;
@@ -128,7 +128,7 @@
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.btnOk.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnOk.Enabled = false;
-            this.btnOk.Location = new System.Drawing.Point(218, 239);
+            this.btnOk.Location = new System.Drawing.Point(218, 214);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(84, 34);
             this.btnOk.TabIndex = 4;
@@ -139,24 +139,13 @@
             // btnAdd
             // 
             this.btnAdd.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAdd.Location = new System.Drawing.Point(122, 239);
+            this.btnAdd.Location = new System.Drawing.Point(122, 214);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(90, 34);
             this.btnAdd.TabIndex = 6;
             this.btnAdd.Text = "&Add...";
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-            // 
-            // btnRefresh
-            // 
-            this.btnRefresh.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
-            this.btnRefresh.Location = new System.Drawing.Point(8, 239);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(42, 34);
-            this.btnRefresh.TabIndex = 7;
-            this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // statusStrip
             // 
@@ -169,6 +158,14 @@
             this.statusStrip.Size = new System.Drawing.Size(400, 22);
             this.statusStrip.TabIndex = 2;
             // 
+            // toolStripStatusLabel
+            // 
+            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(369, 17);
+            this.toolStripStatusLabel.Spring = true;
+            this.toolStripStatusLabel.Text = "Loading...";
+            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
             // toolStripContainer
             // 
             // 
@@ -180,7 +177,7 @@
             // 
             this.toolStripContainer.ContentPanel.AutoScroll = true;
             this.toolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(400, 281);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(400, 256);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.toolStripContainer.Name = "toolStripContainer";
@@ -188,19 +185,22 @@
             this.toolStripContainer.TabIndex = 3;
             this.toolStripContainer.Text = "toolStripContainer1";
             // 
-            // toolStripStatusLabel
-            // 
-            this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(369, 17);
-            this.toolStripStatusLabel.Spring = true;
-            this.toolStripStatusLabel.Text = "Loading...";
-            this.toolStripStatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
             // toolStripStatusImage
             // 
-            this.toolStripStatusImage.Image = ((System.Drawing.Image)(resources.GetObject("toolStripStatusImage.Image")));
+            this.toolStripStatusImage.Image = global::CleverOmegleGUI.Properties.Resources.loading_anim16;
             this.toolStripStatusImage.Name = "toolStripStatusImage";
             this.toolStripStatusImage.Size = new System.Drawing.Size(16, 17);
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnRefresh.Image = ((System.Drawing.Image)(resources.GetObject("btnRefresh.Image")));
+            this.btnRefresh.Location = new System.Drawing.Point(8, 214);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(42, 34);
+            this.btnRefresh.TabIndex = 7;
+            this.btnRefresh.UseVisualStyleBackColor = true;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
             // 
             // PandoraBotSelectionForm
             // 
@@ -215,6 +215,8 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Select a Pandora Bot (Double-click to select)";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PandoraBotSelectionForm_FormClosing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.PandoraBotSelectionForm_FormClosed);
             this.Load += new System.EventHandler(this.PandoraBotSelectionForm_Load);
             this.Shown += new System.EventHandler(this.PandoraBotSelectionForm_Shown);
             this.tableLayoutPanel.ResumeLayout(false);

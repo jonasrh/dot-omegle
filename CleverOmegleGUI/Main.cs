@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
 using ChatterBotAPI;
+using CleverOmegleGUI.ChatterBotEx;
 using dotOmegle;
 
 namespace CleverOmegleGUI
 {
-    /// <summary>
-    /// Main form.
-    /// </summary>
+    /// <summary>Main form.</summary>
     public partial class Main : Form
     {
         Omegle omegle = new Omegle();
         ChatterBotFactory factory = new ChatterBotFactory();
 
         ChatterBot bot;
-        ChatterBotSession session;        
+        ChatterBotSession session;
 
         DateTime conversationStartTime; // Holds the start time for the current conversation.
+        HtmlElement currentConversation;
 
         /// <summary>Initializes a new instance of the <see cref="Main"/> class.</summary>
         public Main()
@@ -73,30 +74,35 @@ namespace CleverOmegleGUI
             bool control = (keyData & Keys.Control) != 0;
             bool alt = (keyData & Keys.Alt) != 0;
             bool shift = (keyData & Keys.Shift) != 0;
-
             Keys key = (Keys)msg.WParam.ToInt32();
 
             if (control) switch (key)
-            {
-                case Keys.S: saveToolStripButton.PerformClick(); return true;
-                case Keys.R: reconnectToolStripButton.PerformClick(); return true;
-                case Keys.P: printToolStripButton.PerformClick(); return true;
-                case Keys.O: connectToolStripButton.PerformClick(); return true;
-            }
+                {
+                    case Keys.S: saveToolStripButton.PerformClick(); return true;
+                    case Keys.R: reconnectToolStripButton.PerformClick(); return true;
+                    case Keys.P: printToolStripButton.PerformClick(); return true;
+                    case Keys.O: connectToolStripButton.PerformClick(); return true;
+                }
             else switch (key)
-            {
-                case Keys.PageUp: botEnabledToolStripMenuItem.PerformClick(); return true;
-                case Keys.PageDown: botStartsConversationToolStripMenuItem.PerformClick(); return true;
-            }
+                {
+                    case Keys.PageUp: botEnabledToolStripMenuItem.PerformClick(); return true;
+                    case Keys.PageDown: botStartsConversationToolStripMenuItem.PerformClick(); return true;
+                }
 
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
         /// <summary>Sets the status.</summary>
         /// <param name="text">The text.</param>
-        protected void SetStatus(string text)
+        /// <param name="showAnimation">if set to <c>true</c>, shows a loading animation.</param>
+        protected void SetStatus(string text, bool? showAnimation = null)
         {
-            this.Invoke(new MethodInvoker(delegate { statusStripLabel.Text = text; }));
+            this.Invoke(new MethodInvoker(delegate
+            {
+                statusStripLabel.Text = text;
+                if (showAnimation != null)
+                    statusStripThinking.Visible = (bool)showAnimation;
+            }));
         }
 
         /// <summary>
@@ -178,7 +184,7 @@ namespace CleverOmegleGUI
                 element.AppendChild(el_message);
                 element.AppendChild(conversationBox.Document.CreateElement("br"));
 
-                conversationBox.Document.Body.AppendChild(element);
+                currentConversation.AppendChild(element);
 
                 element.ScrollIntoView(true);
             }));
@@ -191,12 +197,14 @@ namespace CleverOmegleGUI
         {
             this.Invoke(new MethodInvoker(delegate
             {
-                HtmlElement element = conversationBox.Document.CreateElement("div");
-                element.InnerHtml = "<hr>You're now chatting with a random stranger. Say hi!<br/><br/>";
-                element.Style = String.Format("color: '{0}';", ColorTranslator.ToHtml(Color.DarkGreen));
-                conversationBox.Document.Body.AppendChild(element);
+                reconnectToolStripButton.Enabled = true;
 
-                element.ScrollIntoView(true);
+                currentConversation = conversationBox.Document.CreateElement("div");
+                currentConversation.InnerHtml = "<hr><span style='color: DarkGreen;'>You're now chatting with a random stranger. Say hi!<br/><br/></span>";
+
+                conversationBox.Document.Body.AppendChild(currentConversation);
+
+                currentConversation.ScrollIntoView(true);
 
                 conversationStartTime = DateTime.Now;
                 conversationTimer.Start();
@@ -262,8 +270,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_CaptchaRequired(object sender, CaptchaRequiredArgs args)
         {
-
-            SetStatus("Captcha required.");
+            SetStatus("Captcha required.", false);
 
             omegle.Stop();
 
@@ -277,12 +284,17 @@ namespace CleverOmegleGUI
 
                 recaptchaControl.Id = "recaptcha_div";
 
-                form.AttachEventHandler("onsubmit", new EventHandler(delegate
+                EventHandler onSubmit = null;
+
+                form.AttachEventHandler("onsubmit", onSubmit = new EventHandler(delegate
                 {
+                    form.DetachEventHandler("onsubmit", onSubmit);
+
                     string response = conversationBox.Document.InvokeScript("get_response").ToString();
                     string challenge = conversationBox.Document.InvokeScript("get_challenge").ToString();
 
                     conversationBox.Document.InvokeScript("destroy_recaptcha");
+
                     form.Parent.InvokeMember("removeChild", new object[] { form.DomElement });
 
                     omegle.SendCaptcha(challenge, response);
@@ -294,8 +306,7 @@ namespace CleverOmegleGUI
                 conversationBox.Document.Body.AppendChild(form);
                 conversationBox.Document.InvokeScript("do_recaptcha", new object[]
                 {
-                    args.id,
-                    recaptchaControl.Id
+                    args.id, recaptchaControl.Id
                 });
 
                 textEntryBox.Enabled = false;
@@ -312,7 +323,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_StrangerStoppedTyping(object sender, EventArgs e)
         {
-            SetStatus("Stranger stopped typing.");
+            SetStatus("Stranger stopped typing.", false);
         }
 
         /// <summary>
@@ -322,7 +333,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_StrangerTyping(object sender, EventArgs e)
         {
-            SetStatus("Stranger typing...");
+            SetStatus("Stranger typing...", false);
         }
 
         /// <summary>
@@ -332,15 +343,16 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_CaptchaRefused(object sender, EventArgs e)
         {
-            WriteText("Captcha refused.", Color.Red);
-            //SetStatus("Reconnecting...");
+            //WriteText("Captcha refused.", Color.Red);
+            SetStatus("Captcha refused...", false);
             //omegle.Reconnect();
             omegle.Disconnect();
-            this.Invoke(new MethodInvoker(delegate
-            {
-                connectToolStripButton.Checked = false;
-                reconnectToolStripButton.Enabled = true;
-            }));
+            omegle.Connect();
+            //this.Invoke(new MethodInvoker(delegate
+            //{
+            //    connectToolStripButton.Checked = false;
+            //    reconnectToolStripButton.Enabled = true;
+            //}));
             return;
         }
 
@@ -351,7 +363,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_WaitingForPartner(object sender, EventArgs e)
         {
-            SetStatus("Waiting for partner...");
+            SetStatus("Waiting for partner...", true);
         }
 
         /// <summary>
@@ -361,8 +373,11 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_StrangerDisconnected(object sender, EventArgs e)
         {
+            conversationTimer.Stop();
+
             WriteText("Stranger disconnected. Starting a new conversation.");
-            SetStatus("Reconnecting...");
+            SetStatus("Reconnecting...", true);
+
             omegle.Reconnect();
             return;
         }
@@ -383,27 +398,54 @@ namespace CleverOmegleGUI
             if (botEnabledToolStripMenuItem.Checked)
             {
                 string botName = currentbotToolStripButton.Text;
+                string answer = String.Empty; int retries = 4;
 
-                omegle.StartTyping();
-                string answer; int retries = 4;
+                SetStatus(botName + " is thinking...", true);
 
-                while ((answer = session.Think(e.message).Trim()).Length == 0 && retries-- > 0)
+                DateTime thinkingStart = DateTime.Now;
+
+                try
                 {
-                    WriteText("Error getting " + botName + "'s response, retrying.", Color.Red);
+                    while ((answer = session.Think(e.message).Trim()).Length == 0 && retries-- > 0)
+                    {
+                        WriteText("Error getting " + botName + "'s response, retrying.", Color.Red);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    WriteText("Exception while getting " + botName + "'s response: " + ex.ToString(), Color.Red);
+                }
+
+                TimeSpan thinkingTime = DateTime.Now.Subtract(thinkingStart);
 
                 if (answer.Length > 0)
                 {
-                    answer = HttpUtility.HtmlDecode(answer);
+                    answer = HttpUtility.HtmlDecode(answer).Replace("  ", " ");
+
+                    SetStatus(botName + " is typing...", false);
+
+                    omegle.StartTyping();
+
+                    //  Good Typist (90 wpm) --- 0.12 seconds
+                    double durationMs = TimeSpan.FromSeconds(answer.Length * 0.12)
+                        .Subtract(thinkingTime).TotalMilliseconds;
+
+                    if (durationMs > 0)
+                        System.Threading.Thread.Sleep((int)durationMs);
+
                     omegle.StopTyping();
+
+                    SetStatus(botName + " stopped typing...");
                     if (botEnabledToolStripMenuItem.Checked) // Double check
                     {
                         omegle.SendMessageRaw(answer);
                         WriteMessage(botName, answer, Color.Teal);
                     }
+
+                    SetStatus("");
                 }
                 else
-                    WriteText("Could not get " + botName + "'s response.", Color.Red);
+                    SetStatus("Could not get " + botName + "'s response.", false);
             }
         }
 
@@ -414,7 +456,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void omegle_Connected(object sender, EventArgs e)
         {
-            SetStatus("Connected.");
+            SetStatus("Connected.", false);
 
             session = bot.CreateSession();
 
@@ -433,7 +475,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="dotOmegle.WebExceptionEventArgs"/> instance containing the event data.</param>
         private void omegle_WebException(object sender, WebExceptionEventArgs e)
         {
-            WriteText("Exception: " + e.Exception.ToString(), Color.Red);
+            WriteText(e.Exception.Status + ": " + e.Exception.Message, Color.Red);
         }
 
         #endregion omegle eventhandler methods
@@ -457,17 +499,33 @@ namespace CleverOmegleGUI
         {
             if (e.KeyCode == Keys.Enter)
             {
-                if (omegle.IsConnected == true)
+                if (omegle.IsConnected == true && !talkToBotToolStripButton.Checked)
                 {
-                    omegle.SendMessage(textEntryBox.Text);
-                    WriteMessage("You", textEntryBox.Text, Color.Navy);
-                    textEntryBox.Clear();
+                    this.Invoke(new MethodInvoker(delegate
+                    {
+                        omegle.SendMessage(textEntryBox.Text);
+                        WriteMessage("You", textEntryBox.Text, Color.Navy);
+                    }));
+                }
+                else if (talkToBotToolStripButton.Checked)
+                {
+                    WriteMessage(
+                        (omegle.IsConnected ? "You (To " + currentbotToolStripButton.Text + ")" : "You"),
+                            textEntryBox.Text, Color.Navy);
+
+                    if (!omegle.IsConnected)
+                        Task.Factory.StartNew(() =>
+                            WriteMessage(currentbotToolStripButton.Text, session.Think(textEntryBox.Text), Color.Teal)
+                        );
+                    else
+                    {
+                        //TODO:
+                    }
                 }
                 else
-                {
                     WriteText("Not connected to Omegle network. Click the \"Connect\" button.", Color.Red);
-                    textEntryBox.Clear();
-                }
+
+                textEntryBox.Clear();
             }
         }
 
@@ -478,16 +536,16 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void connectToolStripButton_Click(object sender, EventArgs e)
         {
-            reconnectToolStripButton.Enabled = connectToolStripButton.Checked;
             if (connectToolStripButton.Checked)
             {
-                SetStatus("Connecting...");
+                SetStatus("Connecting...", true);
                 omegle.Connect();
             }
             else
             {
                 omegle.Disconnect();
-                SetStatus("Disconnected.");
+                reconnectToolStripButton.Enabled = false;
+                SetStatus("Disconnected.", false);
             }
         }
 
@@ -530,33 +588,35 @@ namespace CleverOmegleGUI
             if (dialog.ShowDialog() != DialogResult.OK)
                 return;
 
-            FileStream stream = new FileStream(dialog.FileName, FileMode.Create);
-            StreamWriter writer = new StreamWriter(stream);
-
-            if (dialog.FilterIndex == 1)
+            using (FileStream stream = new FileStream(dialog.FileName, FileMode.Create))
             {
-                string header = String.Format(
-                    "<html>\n\t<head>\n\t\t<title>CleverOmegle Chat Log ({0})\n\t\t</title>\n\t</head>\n\t<body>", 
-                    DateTime.Now.ToLongDateString());
-
-                writer.WriteLine(header);
-
-                foreach (HtmlElement el in conversationBox.Document.Body.Children)
+                using (StreamWriter writer = new StreamWriter(stream))
                 {
-                    if (!el.TagName.Equals("script", StringComparison.InvariantCultureIgnoreCase) &&
-                         el.Id != "recaptcha_form")
+                    if (dialog.FilterIndex == 1)
                     {
-                        writer.WriteLine("\t\t" + el.OuterHtml.Trim());
-                    }
-                }
-                writer.Write("\n\t</body>\n</html>");
-            }
-            else
-                writer.Write(conversationBox.Document.Body.InnerText);
+                        string header = String.Format(
+                            "<html>\n\t<head>\n\t\t<title>CleverOmegle Chat Log ({0})\n\t\t</title>\n\t</head>\n\t<body>",
+                            DateTime.Now.ToLongDateString());
 
-            writer.Flush();
-            writer.Close();
-            stream.Close();
+                        writer.WriteLine(header);
+
+                        foreach (HtmlElement el in conversationBox.Document.Body.Children)
+                        {
+                            if (!el.TagName.Equals("script", StringComparison.InvariantCultureIgnoreCase) &&
+                                 el.Id != "recaptcha_form")
+                            {
+                                writer.WriteLine("\t\t" + el.OuterHtml.Trim());
+                            }
+                        }
+                        writer.Write("\n\t</body>\n</html>");
+                    }
+                    else
+                        writer.Write(conversationBox.Document.Body.InnerText);
+
+                    writer.Flush();
+                    writer.Close();
+                }
+            }
         }
 
         /// <summary>
@@ -624,6 +684,8 @@ namespace CleverOmegleGUI
 
             currentbotToolStripButton.Image = botSelCleverbotToolStripMenuItem.Image;
             currentbotToolStripButton.Text = botSelCleverbotToolStripMenuItem.Text;
+
+            botStartsConversationToolStripMenuItem.Enabled = true;
         }
 
         /// <summary>
@@ -638,6 +700,8 @@ namespace CleverOmegleGUI
 
             currentbotToolStripButton.Image = botSelJabberwackyToolStripMenuItem.Image;
             currentbotToolStripButton.Text = botSelJabberwackyToolStripMenuItem.Text;
+
+            botStartsConversationToolStripMenuItem.Enabled = true;
         }
 
         /// <summary>
@@ -647,18 +711,53 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void botsSeltPandoraBotToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            PandoraBotSelectionForm sel_form = new PandoraBotSelectionForm();
+            using (PandoraBotSelectionForm sel_form = new PandoraBotSelectionForm())
+            {
+                sel_form.ShowDialog(this);
 
-            sel_form.ShowDialog(this);
+                if (sel_form.BotId == null || sel_form.BotName == null)
+                    return;
 
-            if (sel_form.BotId == null || sel_form.BotName == null)
-                return;
+                bot = factory.Create(ChatterBotType.PANDORABOTS, sel_form.BotId);
+                session = bot.CreateSession();
 
-            bot = factory.Create(ChatterBotType.PANDORABOTS, sel_form.BotId);
-            session = bot.CreateSession();
+                currentbotToolStripButton.Image = botSelPandoraBotToolStripMenuItem.Image;
+                currentbotToolStripButton.Text = sel_form.BotName;
 
-            currentbotToolStripButton.Image = botsSeltPandoraBotToolStripMenuItem.Image;
-            currentbotToolStripButton.Text = sel_form.BotName;
+                botStartsConversationToolStripMenuItem.Checked = false;
+                botStartsConversationToolStripMenuItem.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the botSelSensationBotToolStripMenuItem control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        private void botSelSensationBotToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (sender != null && sender != botSelSensationBotToolStripMenuItem)
+            {
+                ToolStripItem control = sender as ToolStripItem;
+
+                switch (control.Tag.ToString())
+                {
+                    case "general": bot = new SensationBot(SensationBot.BotType.GeneralChat); break;
+                    case "romantic": bot = new SensationBot(SensationBot.BotType.Romantic, 0); break;
+                    case "romantic2": bot = new SensationBot(SensationBot.BotType.Romantic, 1); break;
+                    case "smacktalk": bot = new SensationBot(SensationBot.BotType.SmackTalk); break;
+                    case "adult1": bot = new SensationBot(SensationBot.BotType.AdultM2F); break;
+                    case "adult2": bot = new SensationBot(SensationBot.BotType.AdultF2M); break;
+                    case "adult3": bot = new SensationBot(SensationBot.BotType.AdultL); break;
+                    case "adult4": bot = new SensationBot(SensationBot.BotType.AdultG); break;
+                    default: break;
+                }
+
+                currentbotToolStripButton.Image = botSelSensationBotToolStripMenuItem.Image;
+                currentbotToolStripButton.Text = botSelSensationBotToolStripMenuItem.Text.TrimEnd('.');
+
+                session = bot.CreateSession();
+            }
         }
 
         /// <summary>
@@ -669,6 +768,14 @@ namespace CleverOmegleGUI
         private void restartBotToolStripMenuItem_Click(object sender, EventArgs e)
         {
             session = bot.CreateSession();
+        }
+
+        private void talkToBotToolStripButton_Click(object sender, EventArgs e)
+        {
+            session = bot.CreateSession();
+
+            if (currentConversation == null)
+                beginConversation();
         }
     }
 }

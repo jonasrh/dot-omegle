@@ -20,27 +20,20 @@ SOFTWARE.
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
 using System.Threading;
+using System.Web;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace dotOmegle
 {
-    /// <summary>
-    /// Allows a user to interact with the Omegle website
-    /// </summary>
+    /// <summary>Allows a user to interact with the Omegle website</summary>
     public class Omegle
     {
         public string[] serverList = new string[]
         {
             "bajor","quarks" //finish serverList implementation
         };
-        
-        protected Timer updateTimer;
 
         /// <summary>
         /// Raised when a message from a stranger is received.
@@ -106,14 +99,6 @@ namespace dotOmegle
         public string Id { get; protected set; }
 
         /// <summary>
-        /// How long (in milliseconds) should we wait between updates?
-        /// </summary>
-        /// <value>
-        /// The check interval.
-        /// </value>
-        public int checkInterval { get; set; }
-
-        /// <summary>
         /// What server to connect to?
         /// </summary>
         /// <value>
@@ -121,10 +106,9 @@ namespace dotOmegle
         /// </value>
         public string Server { get; set; }
 
-
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="Omegle"/> throws 
-        /// exceptions or passes them through the <see cref="WebException"/> event handler. 
+        /// Gets or sets a value indicating whether this <see cref="Omegle"/> throws
+        /// exceptions or passes them through the <see cref="WebException"/> event handler.
         /// (except for exceptions from <see cref="Listen()"/>, which are always passed through.)
         /// </summary>
         /// <value><c>true</c> if throws; otherwise, <c>false</c>.</value>
@@ -161,8 +145,6 @@ namespace dotOmegle
         public Omegle()
         {
             Id = null;
-            checkInterval = 1000;
-            updateTimer = new Timer(TimerCallBack);
             Status = status.Stopped;
             IsConnected = false;
             Throws = true;
@@ -176,7 +158,6 @@ namespace dotOmegle
         {
             GetID();
             Start();
-            IsConnected = true;
         }
 
         /// <summary>
@@ -184,8 +165,11 @@ namespace dotOmegle
         /// </summary>
         public void Start()
         {
-            Status = status.Started;
-            updateTimer.Change(0, Timeout.Infinite);
+            if (Status != status.Started)
+            {
+                Status = status.Started;
+                ThreadPool.QueueUserWorkItem(new WaitCallback(WorkerProc));
+            }
         }
 
         /// <summary>
@@ -194,7 +178,6 @@ namespace dotOmegle
         public void Stop()
         {
             Status = status.Stopped;
-            updateTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         /// <summary>
@@ -256,6 +239,9 @@ namespace dotOmegle
         /// <returns></returns>
         public string SendMessageRaw(string message)
         {
+            if (!IsConnected)
+                return null;
+
             //Send Message format: [url]http://bajor.omegle.com/send?id=Id&msg=MSG[/url]
 
             PostSubmitter sendPost = new PostSubmitter();
@@ -296,12 +282,15 @@ namespace dotOmegle
         /// </summary>
         public void StartTyping()
         {
+            if (!IsConnected)
+                return;
+
             PostSubmitter sendPost = new PostSubmitter();
             sendPost.Url = String.Format("http://{0}.omegle.com/typing", Server);
             sendPost.PostItems.Add("id", Id);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
 
-            if(!Throws)
+            if (!Throws)
                 sendPost.WebExceptionEvent += WebException;
 
             sendPost.Post();
@@ -312,12 +301,15 @@ namespace dotOmegle
         /// </summary>
         public void StopTyping()
         {
+            if (!IsConnected)
+                return;
+
             PostSubmitter sendPost = new PostSubmitter();
             sendPost.Url = String.Format("http://{0}.omegle.com/stoppedtyping", Server);
             sendPost.PostItems.Add("id", Id);
             sendPost.Type = PostSubmitter.PostTypeEnum.Post;
 
-            if(!Throws)
+            if (!Throws)
                 sendPost.WebExceptionEvent += WebException;
 
             sendPost.Post();
@@ -331,6 +323,9 @@ namespace dotOmegle
         /// <returns></returns>
         public string SendMessageAsID(string message, string ownID)
         {
+            if (!IsConnected)
+                return null;
+
             //This method could potentially be used to send messages from another user.
             //One would have to acquire said users Id first.
             //TODO: Find a way to get a strangers Id
@@ -354,6 +349,9 @@ namespace dotOmegle
         /// <returns></returns>
         public string SendDisconnect()
         {
+            if (!IsConnected)
+                return null;
+
             PostSubmitter sendPost = new PostSubmitter();
             sendPost.Url = String.Format("http://{0}.omegle.com/disconnect", Server);
             sendPost.PostItems.Add("id", Id);
@@ -365,15 +363,19 @@ namespace dotOmegle
             return sendPost.Post();
         }
 
-        /// <summary>
-        /// Internal event parsing.
-        /// </summary>
+        /// <summary>Internal event parsing.</summary>
         /// <param name="response">The response.</param>
-        private void Parse(string response)
+        /// <returns>True if events were processed.</returns>
+        private bool Parse(string response)
         {
+            if (response == null || response.Trim() == string.Empty)
+                return false;
+
             JArray events = JsonConvert.DeserializeObject<JArray>(response);
 
-            if (events != null)
+            if (events == null)
+                return false;
+            else
             {
                 foreach (JToken ev in events)
                 {
@@ -387,28 +389,24 @@ namespace dotOmegle
                                 this.Connected(this, new EventArgs());
                             break;
                         case "strangerDisconnected":
-                            {
-                                if (this.StrangerDisconnected != null)
-                                    this.StrangerDisconnected(this, new EventArgs());
-
-                                break;
-                            }
+                            IsConnected = false;
+                            if (this.StrangerDisconnected != null)
+                                this.StrangerDisconnected(this, new EventArgs());
+                            return true;
                         case "gotMessage":
-                            if (this.MessageReceived != null)
-                            {
+                            if (this.MessageReceived != null && IsConnected)
                                 this.MessageReceived(this, new MessageReceivedArgs(ev[1].ToString().TrimStart('"').TrimEnd('"')));
-                            }
                             break;
                         case "waiting":
                             if (this.WaitingForPartner != null)
                                 this.WaitingForPartner(this, new EventArgs());
                             break;
                         case "typing":
-                            if (this.StrangerTyping != null)
+                            if (this.StrangerTyping != null && IsConnected)
                                 this.StrangerTyping(this, new EventArgs());
                             break;
                         case "stoppedTyping":
-                            if (this.StrangerStoppedTyping != null)
+                            if (this.StrangerStoppedTyping != null && IsConnected)
                                 this.StrangerStoppedTyping(this, new EventArgs());
                             break;
                         case "count":
@@ -423,13 +421,13 @@ namespace dotOmegle
                             if (this.CaptchaRefused != null)
                                 this.CaptchaRefused(this, new EventArgs());
                             break;
-                        case "suggestSpyee":
                         case "error": // should probably handle this one
+                        case "suggestSpyee":
                         case "spyMessage":
                         case "spyTyping":
                         case "spyStoppedTyping":
                         case "spyDisconnected":
-                        case "question":                        
+                        case "question":
                         default:
                             if (this.UnhandledResponse != null)
                                 this.UnhandledResponse(this, new UnhandledResponseEventArgs(ev.ToString()));
@@ -437,12 +435,13 @@ namespace dotOmegle
                     }
                 }
             }
+
+            return true;
         }
 
-        /// <summary>
-        /// Checks the Server for a new response.
-        /// </summary>
-        private void Listen()
+        /// <summary>Checks the Server for a new response.</summary>
+        /// <returns>True if events were parsed, otherwise false.</returns>
+        private bool Listen()
         {
             PostSubmitter eventlisten = new PostSubmitter();
             eventlisten.Url = String.Format("http://{0}.omegle.com/events", Server);
@@ -450,22 +449,24 @@ namespace dotOmegle
             eventlisten.Type = PostSubmitter.PostTypeEnum.Post;
 
             eventlisten.WebExceptionEvent += WebException;
-            
-            Parse(eventlisten.Post());
+
+            string response = eventlisten.Post();
+
+            if (response != null && response != "null")
+                return Parse(response);
+            else
+                return false;
         }
 
-        /// <summary>
-        /// Internal timer callback used to process events on a different thread.
-        /// </summary>
-        /// <param name="info">Unused</param>
-        protected void TimerCallBack(object info)
+        /// <summary>Worker thread.</summary>
+        /// <param name="info">Unused.</param>
+        protected void WorkerProc(object info)
         {
-            updateTimer.Change(Timeout.Infinite, Timeout.Infinite);
-
-            Listen();
+            if (Listen() == false)
+                Thread.Sleep(5000);
 
             if (Status == status.Started)
-                updateTimer.Change(checkInterval, checkInterval);
+                ThreadPool.QueueUserWorkItem(WorkerProc);
         }
     }
 }
