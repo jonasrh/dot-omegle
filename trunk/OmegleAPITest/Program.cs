@@ -38,8 +38,6 @@ namespace OmegleAPITest
             omegle.StrangerTyping += new EventHandler(omegle_StrangerTyping);
             omegle.WaitingForPartner += new EventHandler(omegle_WaitingForPartner);
 
-            omegle.continueRestarts = true;
-            omegle.omegleMode = true;
             Console.WriteLine("Connecting...");
             omegle.Connect();
 

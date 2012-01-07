@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.statusStripThinking = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStripLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStripTime = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
@@ -48,12 +49,25 @@
             this.currentbotToolStripButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.botSelCleverbotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.botSelJabberwackyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.botsSeltPandoraBotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.botSelPandoraBotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.botSelSensationBotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotGeneralToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotRomanticToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
+            this.sensationBotAdult18ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
+            this.sensationBotRomanticExplicitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotSmacktalkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotMaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotFemaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotLesbianToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sensationBotGayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.botEnabledToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.botStartsConversationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.restartBotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.talkToBotToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripContainer = new System.Windows.Forms.ToolStripContainer();
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.textEntryBox = new System.Windows.Forms.TextBox();
@@ -72,18 +86,27 @@
             // 
             this.statusStrip.Dock = System.Windows.Forms.DockStyle.None;
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusStripThinking,
             this.statusStripLabel,
             this.statusStripTime});
             this.statusStrip.Location = new System.Drawing.Point(0, 0);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.ShowItemToolTips = true;
-            this.statusStrip.Size = new System.Drawing.Size(689, 22);
+            this.statusStrip.Size = new System.Drawing.Size(562, 22);
             this.statusStrip.TabIndex = 0;
+            // 
+            // statusStripThinking
+            // 
+            this.statusStripThinking.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.statusStripThinking.Image = global::CleverOmegleGUI.Properties.Resources.thinking_anim16;
+            this.statusStripThinking.Name = "statusStripThinking";
+            this.statusStripThinking.Size = new System.Drawing.Size(16, 17);
+            this.statusStripThinking.Visible = false;
             // 
             // statusStripLabel
             // 
             this.statusStripLabel.Name = "statusStripLabel";
-            this.statusStripLabel.Size = new System.Drawing.Size(640, 17);
+            this.statusStripLabel.Size = new System.Drawing.Size(513, 17);
             this.statusStripLabel.Spring = true;
             this.statusStripLabel.Text = "statusStripLabel";
             this.statusStripLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -110,10 +133,11 @@
             this.facebookToolStripButton,
             this.toolStripSeparator1,
             this.helpToolStripButton,
-            this.currentbotToolStripButton});
+            this.currentbotToolStripButton,
+            this.talkToBotToolStripButton});
             this.toolStrip.Location = new System.Drawing.Point(0, 0);
             this.toolStrip.Name = "toolStrip";
-            this.toolStrip.Size = new System.Drawing.Size(689, 25);
+            this.toolStrip.Size = new System.Drawing.Size(562, 25);
             this.toolStrip.Stretch = true;
             this.toolStrip.TabIndex = 20;
             this.toolStrip.Text = "Toolbar";
@@ -121,12 +145,12 @@
             // connectToolStripButton
             // 
             this.connectToolStripButton.CheckOnClick = true;
-            this.connectToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.connectToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("connectToolStripButton.Image")));
+            this.connectToolStripButton.Image = global::CleverOmegleGUI.Properties.Resources.omegle_icon16;
             this.connectToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.connectToolStripButton.Name = "connectToolStripButton";
-            this.connectToolStripButton.Size = new System.Drawing.Size(23, 22);
-            this.connectToolStripButton.Text = "&Connect to Omegle (Ctrl+O)";
+            this.connectToolStripButton.Size = new System.Drawing.Size(72, 22);
+            this.connectToolStripButton.Text = "&Connect";
+            this.connectToolStripButton.ToolTipText = "&Connect to Omegle (Ctrl+O)";
             this.connectToolStripButton.Click += new System.EventHandler(this.connectToolStripButton_Click);
             // 
             // reconnectToolStripButton
@@ -187,7 +211,7 @@
             // facebookToolStripButton
             // 
             this.facebookToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.facebookToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("facebookToolStripButton.Image")));
+            this.facebookToolStripButton.Image = global::CleverOmegleGUI.Properties.Resources.facebook_icon16;
             this.facebookToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.facebookToolStripButton.Name = "facebookToolStripButton";
             this.facebookToolStripButton.Size = new System.Drawing.Size(23, 22);
@@ -218,13 +242,14 @@
             this.currentbotToolStripButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.botSelCleverbotToolStripMenuItem,
             this.botSelJabberwackyToolStripMenuItem,
-            this.botsSeltPandoraBotToolStripMenuItem,
+            this.botSelPandoraBotToolStripMenuItem,
+            this.botSelSensationBotToolStripMenuItem,
             this.toolStripSeparator4,
             this.botEnabledToolStripMenuItem,
             this.botStartsConversationToolStripMenuItem,
             this.toolStripSeparator5,
             this.restartBotToolStripMenuItem});
-            this.currentbotToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("currentbotToolStripButton.Image")));
+            this.currentbotToolStripButton.Image = global::CleverOmegleGUI.Properties.Resources.cleverbot_icon16;
             this.currentbotToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.currentbotToolStripButton.Name = "currentbotToolStripButton";
             this.currentbotToolStripButton.Size = new System.Drawing.Size(87, 22);
@@ -240,19 +265,115 @@
             // 
             // botSelJabberwackyToolStripMenuItem
             // 
-            this.botSelJabberwackyToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("botSelJabberwackyToolStripMenuItem.Image")));
+            this.botSelJabberwackyToolStripMenuItem.Image = global::CleverOmegleGUI.Properties.Resources.jabberwacky_icon16;
             this.botSelJabberwackyToolStripMenuItem.Name = "botSelJabberwackyToolStripMenuItem";
             this.botSelJabberwackyToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
             this.botSelJabberwackyToolStripMenuItem.Text = "Jabberwacky";
             this.botSelJabberwackyToolStripMenuItem.Click += new System.EventHandler(this.botSelJabberwackyToolStripMenuItem_Click);
             // 
-            // botsSeltPandoraBotToolStripMenuItem
+            // botSelPandoraBotToolStripMenuItem
             // 
-            this.botsSeltPandoraBotToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("botsSeltPandoraBotToolStripMenuItem.Image")));
-            this.botsSeltPandoraBotToolStripMenuItem.Name = "botsSeltPandoraBotToolStripMenuItem";
-            this.botsSeltPandoraBotToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
-            this.botsSeltPandoraBotToolStripMenuItem.Text = "Pandora Bots...";
-            this.botsSeltPandoraBotToolStripMenuItem.Click += new System.EventHandler(this.botsSeltPandoraBotToolStripMenuItem_Click);
+            this.botSelPandoraBotToolStripMenuItem.Image = global::CleverOmegleGUI.Properties.Resources.pandora_icon16;
+            this.botSelPandoraBotToolStripMenuItem.Name = "botSelPandoraBotToolStripMenuItem";
+            this.botSelPandoraBotToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.botSelPandoraBotToolStripMenuItem.Text = "Pandora Bots...";
+            this.botSelPandoraBotToolStripMenuItem.Click += new System.EventHandler(this.botsSeltPandoraBotToolStripMenuItem_Click);
+            // 
+            // botSelSensationBotToolStripMenuItem
+            // 
+            this.botSelSensationBotToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sensationBotGeneralToolStripMenuItem,
+            this.sensationBotRomanticToolStripMenuItem,
+            this.toolStripSeparator7,
+            this.sensationBotAdult18ToolStripMenuItem,
+            this.toolStripSeparator8,
+            this.sensationBotRomanticExplicitToolStripMenuItem,
+            this.sensationBotSmacktalkToolStripMenuItem,
+            this.sensationBotMaleToolStripMenuItem,
+            this.sensationBotFemaleToolStripMenuItem,
+            this.sensationBotLesbianToolStripMenuItem,
+            this.sensationBotGayToolStripMenuItem});
+            this.botSelSensationBotToolStripMenuItem.Enabled = false;
+            this.botSelSensationBotToolStripMenuItem.Image = global::CleverOmegleGUI.Properties.Resources.sensationbot_icon16;
+            this.botSelSensationBotToolStripMenuItem.Name = "botSelSensationBotToolStripMenuItem";
+            this.botSelSensationBotToolStripMenuItem.Size = new System.Drawing.Size(212, 22);
+            this.botSelSensationBotToolStripMenuItem.Text = "Sensation Bot...";
+            this.botSelSensationBotToolStripMenuItem.Click += new System.EventHandler(this.botSelSensationBotToolStripMenuItem_Click);
+            // 
+            // sensationBotGeneralToolStripMenuItem
+            // 
+            this.sensationBotGeneralToolStripMenuItem.Name = "sensationBotGeneralToolStripMenuItem";
+            this.sensationBotGeneralToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotGeneralToolStripMenuItem.Tag = "general";
+            this.sensationBotGeneralToolStripMenuItem.Text = "General";
+            this.sensationBotGeneralToolStripMenuItem.Click += new System.EventHandler(this.botSelSensationBotToolStripMenuItem_Click);
+            // 
+            // sensationBotRomanticToolStripMenuItem
+            // 
+            this.sensationBotRomanticToolStripMenuItem.Name = "sensationBotRomanticToolStripMenuItem";
+            this.sensationBotRomanticToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotRomanticToolStripMenuItem.Tag = "romantic";
+            this.sensationBotRomanticToolStripMenuItem.Text = "Romantic (15+)";
+            this.sensationBotRomanticToolStripMenuItem.Click += new System.EventHandler(this.botSelSensationBotToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator7
+            // 
+            this.toolStripSeparator7.Name = "toolStripSeparator7";
+            this.toolStripSeparator7.Size = new System.Drawing.Size(170, 6);
+            // 
+            // sensationBotAdult18ToolStripMenuItem
+            // 
+            this.sensationBotAdult18ToolStripMenuItem.Enabled = false;
+            this.sensationBotAdult18ToolStripMenuItem.Name = "sensationBotAdult18ToolStripMenuItem";
+            this.sensationBotAdult18ToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotAdult18ToolStripMenuItem.Text = "Adult (18+)";
+            // 
+            // toolStripSeparator8
+            // 
+            this.toolStripSeparator8.Name = "toolStripSeparator8";
+            this.toolStripSeparator8.Size = new System.Drawing.Size(170, 6);
+            // 
+            // sensationBotRomanticExplicitToolStripMenuItem
+            // 
+            this.sensationBotRomanticExplicitToolStripMenuItem.Name = "sensationBotRomanticExplicitToolStripMenuItem";
+            this.sensationBotRomanticExplicitToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotRomanticExplicitToolStripMenuItem.Tag = "romantic2";
+            this.sensationBotRomanticExplicitToolStripMenuItem.Text = "Romantic (Explicit)";
+            // 
+            // sensationBotSmacktalkToolStripMenuItem
+            // 
+            this.sensationBotSmacktalkToolStripMenuItem.Name = "sensationBotSmacktalkToolStripMenuItem";
+            this.sensationBotSmacktalkToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotSmacktalkToolStripMenuItem.Tag = "smacktalk";
+            this.sensationBotSmacktalkToolStripMenuItem.Text = "Smacktalk";
+            // 
+            // sensationBotMaleToolStripMenuItem
+            // 
+            this.sensationBotMaleToolStripMenuItem.Name = "sensationBotMaleToolStripMenuItem";
+            this.sensationBotMaleToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotMaleToolStripMenuItem.Tag = "adult1";
+            this.sensationBotMaleToolStripMenuItem.Text = "Male";
+            // 
+            // sensationBotFemaleToolStripMenuItem
+            // 
+            this.sensationBotFemaleToolStripMenuItem.Name = "sensationBotFemaleToolStripMenuItem";
+            this.sensationBotFemaleToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotFemaleToolStripMenuItem.Tag = "adult2";
+            this.sensationBotFemaleToolStripMenuItem.Text = "Female";
+            // 
+            // sensationBotLesbianToolStripMenuItem
+            // 
+            this.sensationBotLesbianToolStripMenuItem.Name = "sensationBotLesbianToolStripMenuItem";
+            this.sensationBotLesbianToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotLesbianToolStripMenuItem.Tag = "adult3";
+            this.sensationBotLesbianToolStripMenuItem.Text = "Lesbian";
+            // 
+            // sensationBotGayToolStripMenuItem
+            // 
+            this.sensationBotGayToolStripMenuItem.Name = "sensationBotGayToolStripMenuItem";
+            this.sensationBotGayToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.sensationBotGayToolStripMenuItem.Tag = "adult4";
+            this.sensationBotGayToolStripMenuItem.Text = "Gay";
             // 
             // toolStripSeparator4
             // 
@@ -289,6 +410,18 @@
             this.restartBotToolStripMenuItem.Text = "&Restart bot";
             this.restartBotToolStripMenuItem.Click += new System.EventHandler(this.restartBotToolStripMenuItem_Click);
             // 
+            // talkToBotToolStripButton
+            // 
+            this.talkToBotToolStripButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.talkToBotToolStripButton.CheckOnClick = true;
+            this.talkToBotToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.talkToBotToolStripButton.Image = global::CleverOmegleGUI.Properties.Resources.FullScreenHS;
+            this.talkToBotToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.talkToBotToolStripButton.Name = "talkToBotToolStripButton";
+            this.talkToBotToolStripButton.Size = new System.Drawing.Size(23, 22);
+            this.talkToBotToolStripButton.Text = "Talk to bot";
+            this.talkToBotToolStripButton.Click += new System.EventHandler(this.talkToBotToolStripButton_Click);
+            // 
             // toolStripContainer
             // 
             // 
@@ -300,11 +433,11 @@
             // 
             this.toolStripContainer.ContentPanel.AutoScroll = true;
             this.toolStripContainer.ContentPanel.Controls.Add(this.tableLayoutPanel);
-            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(689, 386);
+            this.toolStripContainer.ContentPanel.Size = new System.Drawing.Size(562, 379);
             this.toolStripContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStripContainer.Location = new System.Drawing.Point(0, 0);
             this.toolStripContainer.Name = "toolStripContainer";
-            this.toolStripContainer.Size = new System.Drawing.Size(689, 433);
+            this.toolStripContainer.Size = new System.Drawing.Size(562, 426);
             this.toolStripContainer.TabIndex = 21;
             this.toolStripContainer.Text = "toolStripContainer1";
             // 
@@ -326,7 +459,7 @@
             this.tableLayoutPanel.RowCount = 2;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(689, 386);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(562, 379);
             this.tableLayoutPanel.TabIndex = 19;
             // 
             // textEntryBox
@@ -334,9 +467,9 @@
             this.textEntryBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textEntryBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textEntryBox.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textEntryBox.Location = new System.Drawing.Point(4, 358);
+            this.textEntryBox.Location = new System.Drawing.Point(4, 351);
             this.textEntryBox.Name = "textEntryBox";
-            this.textEntryBox.Size = new System.Drawing.Size(681, 20);
+            this.textEntryBox.Size = new System.Drawing.Size(554, 20);
             this.textEntryBox.TabIndex = 18;
             this.textEntryBox.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textEntryBox_KeyUp);
             // 
@@ -350,7 +483,7 @@
             this.conversationBox.MinimumSize = new System.Drawing.Size(20, 20);
             this.conversationBox.Name = "conversationBox";
             this.conversationBox.ScriptErrorsSuppressed = true;
-            this.conversationBox.Size = new System.Drawing.Size(687, 353);
+            this.conversationBox.Size = new System.Drawing.Size(560, 346);
             this.conversationBox.TabIndex = 17;
             this.conversationBox.TabStop = false;
             // 
@@ -363,7 +496,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(689, 433);
+            this.ClientSize = new System.Drawing.Size(562, 426);
             this.Controls.Add(this.toolStripContainer);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Main";
@@ -413,11 +546,25 @@
         private System.Windows.Forms.ToolStripStatusLabel statusStripTime;
         private System.Windows.Forms.Timer conversationTimer;
         private System.Windows.Forms.ToolStripMenuItem botSelCleverbotToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem botsSeltPandoraBotToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem botSelPandoraBotToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem botSelJabberwackyToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem restartBotToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel statusStripThinking;
+        private System.Windows.Forms.ToolStripMenuItem botSelSensationBotToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotGeneralToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotRomanticToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotAdult18ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotRomanticExplicitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotSmacktalkToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotMaleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotFemaleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotLesbianToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sensationBotGayToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton talkToBotToolStripButton;
     }
 }
 

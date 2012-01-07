@@ -124,28 +124,19 @@
     <value>126, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="connectToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGNSURBVDhPjZNNLwNRFIbvP0OChMS3IBJ/wMJCWCD4HWyI
-        iK+GBY1Eo0VihSYsumiVNlWJoNqiHaXt67y9HR1jRnqSm9yZe85zz8d7lRIrl8udhmG8QSxjAKFHIP/J
-        L23XKWDQAzQs1VbLCjAfKAUY3CPBpaccMOEDGqtOTcvAqBeIpTUk+wGM7PyFKAnOpfJA9/rvQ/M23rQX
-        1pDoC8BvayaKB9OHzsGmI7M6TWjIwoUN8C61Wolu+441oFAEws82gP3HfzD/rc6itVpG7wagXgsAG1ZP
-        Ft6IBjCbvk3gLisA/hjbrw9wHAO+SsCQjDSRAYqyrwA452Zbd50yOr/XY2XZDJ47EkBEgmm7MipTA27l
-        XD1oXzOYfmpgC0iL+mgncaBt1b2cSRHajWhhNlDzUaQMb+syaBwrm+UJAb4ocJYELuXm8QNncAXARYUt
-        BkVtVRBhbFhcmkWjCp1K+wFYD9uljC6RNjNjygRNuahV2bVtgvqlN0mZM4Nn/O7vRPFJ2iFUGIPZbWvD
-        nJ7zN6q4KVLB0zH0AAAAAElFTkSuQmCC
-</value>
-  </data>
   <data name="reconnectToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE1SURBVDhPY2CgFth06MZ/dLxu35X/K3ee/79k88n/izef
-        7MZrF0gzLjBn9YH/Zl4p+A1Zv/8qTgPW7jz5f9fRK2BDFm060YPVJat3X8RqQMFM5f/nrp35X9+/5L+V
-        XzrYEKwGLN92Bm7Aw5fn/oM0wnB4tcD/dTtP/Z+8aDtuAxZvOgE3AKTx2NVVYH5QmeD/248u/H/59ivY
-        AFPPZOwumLfuMIoBMM7PX3/+v/v4/f/D5x/xGzBr5T6MMPjz99//T19/gr1y6+E7/AZMW7oLbsCbj/fA
-        mr7/+P3/6sMjYPbl26/xGwDyHwwgByCIvef0nv+nrz4n3oCnb6//988SAAfcncfv/1+8+er/kfNPiDcA
-        OeCu3n3z/+TlZ//3nnpInAEgr+DDOKMRFscgBYQwtTIw2BwAeL/WUjp5CbsAAAAASUVORK5CYII=
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAH8SURBVDhPY2AgAvDwSIiqB+c1EqEUXYk9C1CETVzP1inw
+        0I//0la+MUQZIqhu6W5QMHOF3cQDV+xmHr/huuDiA9/Dv/67Ljn/nFNYWAqfIUxKQYV9zksf/HfZ8e2/
+        /f5//y0P/P9vvPXrf72VL/4brnn3XzWpYzHQAEashigHF3a6rn//X2vK6W/KDeuvK9dvuKDWf/SR2rIX
+        /xVm3/svPfn2f9XeK//55fUdMQwQVDa01O8//F3CPryTlVtQG6iAC4iZRc19E9RWfPivPOn6f4X0OVdE
+        dJ3yGRh4RDAMUHCOquGT14pEl1BK7pyjVL7qmoiWTRpQjg+f/7FK8okrmgE1CRIV+uiKuEREJMnSKKhl
+        baNbNG+nnGfaVHQDeFWMLIDhkonNYE5BHUcvjfTJ22xnXf3vuv7tf35FvWCYQkElY35xj/Rkxfq9b7hk
+        1DwwDOBXMwuwnnrpv8Oie/8tlz/9r7f6zX+Z+k1HpAtnr5SpWLFFruPoI9k5T/8Lu6bMw+UtXs3i+af1
+        V737r7Tq/X/lHf/+q+77/19p+///sqs+A9PAzf8SvkWb8MYEi4SiqeiUFz/Vdv79rzrr4kelade+KLYf
+        ey+ZPOmEgLZNFihfEAxUUf/cBs0t3//zyGgGsLPzK7CzsysANbES1IikgEMhtnUJMLWJEqMJAMBktIiT
+        +S9PAAAAAElFTkSuQmCC
 </value>
   </data>
   <data name="saveToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
@@ -194,18 +185,6 @@
         1Taa0ZztoeZUF9UnO5XmDg4du1t5zff1mQ566A8dAOcMIXbZrQAAAABJRU5ErkJggg==
 </value>
   </data>
-  <data name="facebookToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE9SURBVDhPlY3NSgJRGIa/awi6A2sRLYKoRYto+pGsLLMp
-        RQohokb6wUGECiYJFxG0KIsQXESUo5FFSNC2Nu7qBmrTuov46hW+kMN4ygMPnAPP8x4y7UJbxC7VoskK
-        twIatBTedGtW5pGd02feO3v5F3DRoKWQVeJE9omXdqstgQYtTa1ec2z74U8WUmWetvJ1xEdLgeVLjqTv
-        tcwlXf74/GI54qOlsfgFm6k7Le8NMUbER0vGYoFD9q0W+Vn10NJgNM/BrRtPhuM5BnLkLT5aGpg/54mN
-        sie/pXIRHy31h3PsT7ieNBsQHy31zhzzyFpRiwypHlrqmTzioZUrLTKgemipO3DIMaeqRQZUDy11+Q84
-        uF5kM11pigw0OmjQUufo/mvf7Il2RB1AjAYt+cZ32jsM581nZLgV6s1P+w1of42XSI95yAAAAABJRU5E
-        rkJggg==
-</value>
-  </data>
   <data name="facebookToolStripButton.ToolTipText" xml:space="preserve">
     <value>This sends the stranger a fake Facebook profile link. It looks just like any other profile link, but it
 actually redirects the stranger to their own profile.
@@ -249,61 +228,6 @@ You can use this to troll the stranger, saying things like:
         BoCiC5uWXGlzy1KTJK4IeDo1JAqjKnwsfBDE6UYdEjpYQQjkYUWjM1luGVJRSM6lW1poQNBA6RYsNyVu
         0aHih0hXQK9ClQFz68+dJztWyTjRZ5SkOXEqMUEyJkyRVEYGjbhVSokmF0FstOIAR8+tQ5EECA0YAAAH
         DAC2GhCYUSMgADs=
-</value>
-  </data>
-  <data name="botSelJabberwackyToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        R0lGODlhEAAQAIcAAFFRUVVVVVNTU1paWllZWVZWVl5eXl1dXVtbW2JiYldXV2FhYWVlZWBgYGhoaHR0
-        dGpqamZmZmRkZHBwcHV1dWlpaXFxcW9vb3Nzc2xsbHd3d3h4eG1tbXt7e3l5eXx8fIKCgn5+fpOTk4+P
-        j4SEhIuLi52dnZGRkYCAgIeHh46OjoqKioiIiH9/f6CgoB4eHpqamoaGhpWVlaKioq+vr6ysrJeXl6Gh
-        oYODg6ioqI2Njb+/v5aWlh0dHbu7uyEhIZycnLe3t7Ozs9XV1c7OzpmZmaurq9bW1qmpqaWlpbS0tJKS
-        ksDAwL6+vrCwsODg4J6enry8vMLCwri4uMvLy8rKyrW1taSkpNHR0SUlJc3NzTMzM+Hh4bq6urGxsdra
-        2sfHx9PT0z8/P8PDw62traampv///zc3N9LS0sTExMbGxv///97e3v///0NDQ0RERNnZ2c/PzykpKf//
-        /zAwMOjo6Nzc3CYmJiwsLDk5Of///yoqKjg4OCgoKOLi4snJyUJCQh8fHz09PeTk5NjY2C4uLjExMf//
-        /////zQ0NP///93d3f///yIiIi0tLTU1Nf////Dw8OXl5SQkJO/v7/////Pz8+vr6/b29v///zs7O///
-        /////////////+np6fv7+/T09P////////////j4+Ofn50BAQP///////////////////////////+3t
-        7f///xoaGv////////7+/v////////////////Hx8ezs7P///zw8PP////////////////////f39///
-        //////////////z8/P///////xcXF/////////////r6+lJSUk5OTkxMTE9PT0tLS0pKSkhISEdHR0ZG
-        RgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-        ACH/C05FVFNDQVBFMi4wAwEBAAAh+QQAAAAAACwAAAAAEAAQAAAI/wCtCbRWraBBgwOrUZsWLRo0aNKk
-        PWw4jRo1aAAEBChAgMAAAgoKBBDwDAC0ARIqcOCAAYMFCxUcMJCQ4ACBCR08aChRZEmJDxwyLHiAYYKD
-        CURC1XGCIgcJHjwkTHjAYJoDJ5eeuKDhJYC0PXvoXCPA4EG1Ek+bNfMg4UyPHj9eINiyZRoFHmPUaqkm
-        BwSdAS8eFbImqIUMMmqbJUCQ4M2zGBQiSCOgAoaJKF+ORArFxkgOMjmAXKmxwkYRJ1KaSKHyhEudMFR8
-        JBExIQQLGTmQ0DBChsYNEytAtLBAwEACBxlePnhAYcKEDBEaDJD2TADHAQgOaEfQsYAAaQqnMQl0CHFi
-        NPHUAgIAOw==
-</value>
-  </data>
-  <data name="botsSeltPandoraBotToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAHwSURBVDhPpZJhS1NRHMbtW0gfoPBFnyKkNwa9Na1bbrorM1021rzY0CwVCiwjyqCBw+amu0zn
-        TFMUatJKppRzVDYbGzVtcyR01znXe++ezrXeBN5ldOC8OTzPj+f5n39FxQFnNtB5YnLEel90m9KBx1zK
-        94i75R3ijh2k/eONiY7MjF91RkMOZGODkNbuobBkR3KyFhFvPXxDHK9rDEFh35XT8TkXSvQjfh0VmhSH
-        lpsFWbZjJXAWLE21IYBFztOk57cZKJW+Qt0WQdY7UVy1Ib9wDmEP99YQwOJBTbkZQIPKzBpNQN16Appw
-        orjhhPSqARH/BZQF0EQXSnvvoH2bhloYg5K+DfKhHSR3A9IKj8h4GcDi6HlIsSbW+zmUTC+Uzz2Q0x2g
-        GQFkpx8/4pewHDQZJ5gbNU3kX/Ogn7qYUYCy5YKc64Zc6APN9aDwphXRMO82rPB0jK+MTphV6b0dNN8L
-        Kt3BnjwIebcfxZTAzBZtPtRytOw+iB7zydiz5izZdEDJXoOy7QJhFVbnW75M+S2n/rpMuiDkbXJsvLCC
-        fB/Yn0Ey2oaw3yIcyqyLxGHT8aVgI8iu/gOX8TJkQXDEXHVogC68/mAYi/FNPBRn0N5313jyRtSai9Z9
-        s+3mAM40tv074L8T6MnqbAL0W677T+s8Z5yFPmcjAAAAAElFTkSuQmCC
-</value>
-  </data>
-  <data name="currentbotToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKpSURBVDhPlZLLb9NAEIf9v3FCXLhyACQEgkrcQEJCQiA4
-        ABIVFwRC5SXgQHkIVF6iRYW+6ENtSApNWqWJ82oTQpImdpLGXq8/Zp2Wx5G1xmvPznz7m92xEiXFl4xi
-        PucRK3gkSgGL+R5ztsd0usuntM9SQREv+qTKHl+yimmJ/5gMeLIYYL1fUUykFQs5Jcl/YDPZf4HjSZ+J
-        9YBnMc2LuM9yyQA1Vt3VrJUleSPgb1hKfCZoIadFoc+rRMDtKcXjec3Iss9YUrFaEYAONZWWZmVTSwmh
-        WEAsr5mU3abEZrL+b7nvvivWKoqUWLykqXcEAKE84AchrqeptTWZn4HQA5k1hVpIvq6xa4HMAeuyZvw/
-        HI0OQ6xQXqGoMLOBGQsE1lMhKpDfHZ8J7nohrW1NR2YTLwijoD+05PZh/2fWXDPDxcIIXe1Fm+2q+Rdk
-        FO7Yzoa7yq15J8uh/H22dKevdleRkWQKiKB9pxHtNapsjg6j5Nu4rbrf5aj9iAf1WU7Zw1wrj9IJRI2M
-        reJ7NlP3qCSHcCuTkgKZoUusndxL/s1D3HIOqynSD6wP8dJdZrpnM1Ae5pETp1OaJP12D17rG14nx8bs
-        CbadFO2lKTYuH8crZvHaTayW9jlmP6SKG+061koyUHtNfvEsjfg5ka8i/8/kIE37VgQoXDiC9nqR36r6
-        DkekhLpuR46RRpyDlaeUvl/GSV75fSaV+Hma69dxF8bJCSBUfh9gd2vsT98isV2kJedxuvCcO84ibmOF
-        auwMvXaR9laazId9bNcnaedWsc8dxln9iudKCU2vy93qDIOVUW6WPvOqGaehuxG9JzX/WLlBMXYVt/Qa
-        rRxMbzmzo6Svn6GWmJVGMkcrw5elzk4vmPsxnRfdXuijg16/H033ST9EKaonQI9fuj2s1QAvDnYAAAAA
-        SUVORK5CYII=
 </value>
   </data>
   <metadata name="conversationTimer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

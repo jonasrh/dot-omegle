@@ -29,6 +29,7 @@ namespace dotOmegle
             Post
         }
 
+        /// <summary>Occurs when a web exception event is encountered.</summary>
         public event WebExceptionEvent WebExceptionEvent;
 
         /// <summary>
@@ -76,6 +77,11 @@ namespace dotOmegle
         /// </summary>
         public PostTypeEnum Type { get; set; }
 
+
+        /// <summary>If set, specifies the cookie container associated with this object.</summary>
+        /// <value>An instance of the <see cref="CookieContainer"/> class.</value>
+        public CookieContainer CookieContainer { get; set; }
+
         /// <summary>
         /// Posts the supplied data to specified url.
         /// </summary>
@@ -120,7 +126,7 @@ namespace dotOmegle
         /// <param name="postData">The data to post.</param>
         /// <param name="url">the url to post to.</param>
         /// <returns>Returns the result of the post.</returns>
-        private string PostData(string url, string postData, int retries = 4)
+        private string PostData(string url, string postData, int retries = 1)
         {
             HttpWebRequest request = null;
             if (Type == PostTypeEnum.Post)
@@ -139,16 +145,21 @@ namespace dotOmegle
             }
             else
             {
-                Uri uri = new Uri(url + "?" + postData);
-                request = (HttpWebRequest)WebRequest.Create(uri);
+                UriBuilder uri = new UriBuilder(url);
+                if (uri.Query.Length == 0)
+                    uri.Query = postData;
+
+                request = (HttpWebRequest)WebRequest.Create(uri.Uri);
                 request.Method = "GET";
             }
 
-            string result = string.Empty;
+            request.CookieContainer = CookieContainer;
+
+            string result = null;
 
             //Thanks to supersnail11 for this block here (http://www.facepunch.com/threads/1144771?p=33818537&viewfull=1#post33818537)
             
-            while (result == string.Empty && retries-- > 0) try
+            while (result == null && retries-- > 0) try
             {
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                     using (Stream responseStream = response.GetResponseStream())

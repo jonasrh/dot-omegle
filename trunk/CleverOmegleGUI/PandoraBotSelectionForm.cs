@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Net;
-using System.Web;
 using System.Threading;
-using System.Drawing;
 using System.Windows.Forms;
-
-using dotOmegle;
+using HtmlAgilityPack;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace CleverOmegleGUI
 {
@@ -32,11 +26,20 @@ namespace CleverOmegleGUI
         public PandoraBotRecord[] CustomBots { get; set; }
 
         /// <summary>
+        /// Used to cancel the pending refresh operation on close.
+        /// </summary>
+        private CancellationTokenSource ctsTask;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PandoraBotSelectionForm"/> class.
         /// </summary>
         public PandoraBotSelectionForm()
         {
             InitializeComponent();
+
+            BotName = null;
+            BotId = null;
+            CustomBots = null;
         }
 
         /// <summary>
@@ -46,13 +49,10 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void PandoraBotSelectionForm_Load(object sender, EventArgs e)
         {
-            BotName = null;
-            BotId = null;
-
             ListViewColumnSorter sorter = new ListViewColumnSorter();
             sorter.SortColumn = 2;
 
-            botList.ListViewItemSorter = sorter;            
+            botList.ListViewItemSorter = sorter;
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace CleverOmegleGUI
         }
 
         /// <summary>Clears the list.</summary>
-        void ClearList()
+        private void ClearList()
         {
             this.Invoke(new MethodInvoker(delegate { botList.Items.Clear(); }));
         }
@@ -102,13 +102,13 @@ namespace CleverOmegleGUI
         /// <param name="botId">The bot id.</param>
         /// <param name="botInteractions">Number of bot interactions.</param>
         /// <param name="tag">A tag value.</param>
-        private void AddBot(string groupKey, string name, 
+        private void AddBot(string groupKey, string name,
             string botId = null, string botInteractions = null, object tag = null)
         {
-            this.Invoke(new MethodInvoker(delegate
+            this.BeginInvoke(new MethodInvoker(delegate
             {
                 ListViewItem item = new ListViewItem(name);
-                
+
                 if (botInteractions == null)
                     item.SubItems.Add("");
                 else
@@ -124,81 +124,96 @@ namespace CleverOmegleGUI
 
                 for (int i = 0; i < botList.Groups[groupKey].Items.Count; i++)
                 {
-                    if (botList.Groups[groupKey].Items[i].Tag != null && 
+                    if (botList.Groups[groupKey].Items[i].Tag != null &&
                         botList.Groups[groupKey].Items[i].Tag.ToString() == "__noid")
                         botList.Items.Remove(botList.Groups[groupKey].Items[i]);
                 }
 
-                botList.Items.Add(item);
-                botList.Groups[groupKey].Items.Add(item);
+                if (this.IsHandleCreated)
+                {
+                    botList.Items.Add(item);
+                    botList.Groups[groupKey].Items.Add(item);
+                }
+                else return;
             }));
         }
 
         /// <summary>Refreshes the bot list.</summary>
-        private void refreshBotList()
-        {           
-            PostSubmitter popular_list = new PostSubmitter();
-
-            popular_list.Url = "http://www.pandorabots.com/botmaster/en/mostactive";
-            popular_list.Type = PostSubmitter.PostTypeEnum.Get;
-
-            string list_html = string.Empty;
-
-            bool error;
-
-            do
-            {
-                error = false;
-                try { list_html = popular_list.Post(); }
-                catch (WebException) { error = true; }
-            }
-            while (error &&
-                MessageBox.Show(this, "Could not connect to Pandora Bots.", "Network error", MessageBoxButtons.RetryCancel,
-                MessageBoxIcon.Warning) == DialogResult.Retry);
-
-            if (error)
-            {
-                BotName = null;
-                BotId = null;
-                return;
-            }
+        private void refreshBotList(CancellationToken ct)
+        {
+            string list_url = "http://www.pandorabots.com/botmaster/en/mostactive";
 
             ClearList();
 
-            string pattern =
-                "<td.*>\\s*<a.*?href\\s*=\\s*[\"\']/pandora/talk\\?botid=(?<botid>.*?)[\'\"].*?>" +
-                "(?<botname>.*)</a>\\s*</td>\\s*<td.*>\\s*(?<interactions>\\d+)\\s*</td>";
-            
-            Regex regx = new Regex(pattern);
-            MatchCollection matches = regx.Matches(list_html);
+            HtmlAgilityPack.HtmlWeb web = new HtmlAgilityPack.HtmlWeb();
+            HtmlAgilityPack.HtmlDocument doc = null;
 
-            if (matches.Count > 0)
+            string error = null;
+
+            do
             {
-                foreach (Match m in matches)
+                if (!this.IsHandleCreated) 
+                    return;
+
+                try
                 {
-                    GroupCollection g = m.Groups;
-
-                    Group botId = g["botid"];
-                    Group botName = g["botname"];
-                    Group botInteractions = g["interactions"];
-
-                    if (!botName.Success || !botId.Success)
-                        continue;
-
-                    AddBot("popular", 
-                        HttpUtility.HtmlDecode(botName.Value), 
-                        HttpUtility.HtmlDecode(botId.Value), 
-                        HttpUtility.HtmlDecode(botInteractions.Value));
+                    doc = web.Load(list_url);
                 }
+                catch (HtmlWebException ex)
+                {
+                    error = String.Format("Could not connect to Pandora Bots{0}\n{1}",
+                        (String.IsNullOrEmpty(error) ? "." : ":"), ex.Message);
+                }
+
+                if (ct.IsCancellationRequested)
+                    return;
+
+            } while (doc == null &&
+                MessageBox.Show(error, "Network error",
+                    MessageBoxButtons.RetryCancel, MessageBoxIcon.Warning) == DialogResult.Retry);
+
+            int nbots = 0;
+
+            if (doc != null)
+            {
+                HtmlNodeCollection links = doc.DocumentNode.SelectNodes("//td/a[@href]");
+                
+                if (links != null)
+                    foreach (HtmlNode link in links)
+                    {
+                        if (ct.IsCancellationRequested)
+                            return;
+
+                        HtmlAttribute att = link.Attributes["href"];
+
+                        Match match = Regex.Match(att.Value, @"\?botid=(?<id>[\d\w]+)$");
+
+                        if (!match.Success)
+                            continue;
+
+                        nbots++;
+
+                        string botId = match.Groups["id"].Value;
+                        string botName = link.InnerText.Trim();
+
+                        string interactions = link.SelectNodes("following::text()")
+                            .First(x => Regex.IsMatch(x.InnerText, "^[\\d\\w]+$")).InnerText;
+
+                        AddBot("popular", botName, botId, interactions);
+                    }
             }
-            else
+
+            if (nbots == 0)
                 AddBot("popular", "List not available.");
 
             if (CustomBots != null)
-            {
-                foreach (PandoraBotRecord bot in CustomBots) 
+                foreach (PandoraBotRecord bot in CustomBots)
+                {
+                    if (ct.IsCancellationRequested)
+                        return;
+
                     AddBot("custom", bot.Name, bot.Id);
-            }
+                }
             else
                 AddBot("custom", "None added.");
         }
@@ -220,7 +235,7 @@ namespace CleverOmegleGUI
         private static void AdjustViewColumns(ListView listView)
         {
             int w = listView.Size.Width - SystemInformation.VerticalScrollBarWidth;
-            
+
             switch (listView.BorderStyle)
             {
                 case BorderStyle.Fixed3D: w -= 4; break;
@@ -229,7 +244,7 @@ namespace CleverOmegleGUI
 
             for (int ix = 0; ix < listView.Columns.Count; ++ix)
             {
-                if (listView.Columns[ix].Width < w) 
+                if (listView.Columns[ix].Width < w)
                     w -= listView.Columns[ix].Width;
                 else
                 {
@@ -243,47 +258,40 @@ namespace CleverOmegleGUI
 
             // Widen first column to fill listView
             listView.Columns[0].Width += w;
-        } 
+        }
 
         /// <summary>Handles the Click event of the btnRefresh control.</summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            ThreadPool.QueueUserWorkItem(new WaitCallback(delegate
-            {
-                this.Invoke(new MethodInvoker(delegate
-                {
-                    this.UseWaitCursor = true; 
-                    btnRefresh.Enabled = false;
-                    btnAdd.Enabled = false;
-                    btnCancel.Enabled = false;
-                    toolStripStatusImage.Visible = true;
-                    toolStripStatusLabel.Text = "Loading...";
-                }));
+            ctsTask = new CancellationTokenSource();
 
-                refreshBotList();
+            UseWaitCursor = true;
+            btnRefresh.Enabled = false;
+            btnAdd.Enabled = false;
+            toolStripStatusImage.Visible = true;
+            toolStripStatusLabel.Text = "Loading...";
 
-                this.Invoke(new MethodInvoker(delegate
-                {
-                    this.UseWaitCursor = false; 
-                    btnRefresh.Enabled = true;
-                    btnAdd.Enabled = true;
-                    btnCancel.Enabled = true;
-                    toolStripStatusImage.Visible = false;
-                    
-                    IEnumerable<ListViewItem> items = 
-                        botList.Groups["popular"].Items.OfType<ListViewItem>();
+            Task refreshTask = Task.Factory.StartNew(() => refreshBotList(ctsTask.Token), ctsTask.Token);
 
-                    int count = items.Where(i => i.SubItems.Count > 2).Count();
+            while (!refreshTask.IsCompleted)
+                Application.DoEvents();
 
-                    toolStripStatusLabel.Text = String.Format("{0} bot{1} available.",
-                        count.ToString(), count == 1 ? string.Empty : "s");
+            UseWaitCursor = false;
+            btnRefresh.Enabled = true;
+            btnAdd.Enabled = true;
+            toolStripStatusImage.Visible = false;
 
-                    AdjustViewColumns(botList);
-                }));
-            }));
+            IEnumerable<ListViewItem> items =
+                botList.Groups["popular"].Items.OfType<ListViewItem>();
 
+            int count = items.Where(i => i.SubItems.Count > 2).Count();
+
+            toolStripStatusLabel.Text = String.Format("{0} bot{1} available.",
+                count.ToString(), count == 1 ? string.Empty : "s");
+
+            AdjustViewColumns(botList);
         }
 
         /// <summary>
@@ -293,7 +301,7 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void botList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnOk.Enabled = botList.SelectedItems.Count > 0 
+            btnOk.Enabled = botList.SelectedItems.Count > 0
                 && botList.SelectedItems[0].SubItems.Count > 2;
         }
 
@@ -302,12 +310,19 @@ namespace CleverOmegleGUI
         /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            PandoraBotAddCustom frmCustom = new PandoraBotAddCustom();
-
-            if (frmCustom.ShowDialog(this) == DialogResult.OK && frmCustom.BotRecord != null)
-                AddBot("custom", frmCustom.BotRecord);
+            using (PandoraBotAddCustom frmCustom = new PandoraBotAddCustom())
+                if (frmCustom.ShowDialog(this) == DialogResult.OK && frmCustom.BotRecord != null)
+                    AddBot("custom", frmCustom.BotRecord);
         }
 
+        private void PandoraBotSelectionForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            ctsTask.Cancel();
+        }
+
+        private void PandoraBotSelectionForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+        }
     }
 
     /// <summary>
@@ -360,7 +375,7 @@ namespace CleverOmegleGUI
             listviewX = (ListViewItem)x;
             listviewY = (ListViewItem)y;
 
-            // Compare the two items
+            // Compare the two links
 
             if (SortColumn < listviewX.SubItems.Count && SortColumn < listviewY.SubItems.Count)
                 compareResult = ObjectCompare.Compare(listviewX.SubItems[SortColumn].Text, listviewY.SubItems[SortColumn].Text);

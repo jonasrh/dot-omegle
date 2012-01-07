@@ -59,5 +59,82 @@ namespace CleverOmegleGUI.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Bitmap cleverbot_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("cleverbot_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Icon CleverOmegle {
+            get {
+                object obj = ResourceManager.GetObject("CleverOmegle", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap facebook_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("facebook_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap FullScreenHS {
+            get {
+                object obj = ResourceManager.GetObject("FullScreenHS", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap jabberwacky_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("jabberwacky_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap loading_anim16 {
+            get {
+                object obj = ResourceManager.GetObject("loading_anim16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap omegle_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("omegle_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap pandora_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("pandora_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap SendInstantMessage_32x32 {
+            get {
+                object obj = ResourceManager.GetObject("SendInstantMessage_32x32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap sensationbot_icon16 {
+            get {
+                object obj = ResourceManager.GetObject("sensationbot_icon16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap thinking_anim16 {
+            get {
+                object obj = ResourceManager.GetObject("thinking_anim16", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }
