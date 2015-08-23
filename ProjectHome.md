@@ -1,0 +1,1 @@
+The repository has been moved over to [dot-omegle](https://github.com/Naarkie/dot-omegle) on GitHub, please download from there from now on.
